@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(PTCG_BC_CHECKPOINT=artifacts/bc_onehot.pt python verify_kaggle_load.py main.py)"
+    ]
+  }
+}

@@ -1,0 +1,453 @@
+{
+  "engine": {
+    "lib_path": "/usr/local/lib/python3.12/dist-packages/kaggle_environments/envs/cabt/cg/libcg.so",
+    "sha256": "9b75b5870fa6691d66b7b8b63447c034532f96cdcbeb31a98e9588effc1e2724",
+    "platform": {
+      "system": "Linux",
+      "machine": "x86_64",
+      "expected_lib": "libcg.so",
+      "python": "3.12.3",
+      "needs_amd64_container": false
+    },
+    "exported": [
+      "GameInitialize",
+      "BattleStart",
+      "BattleFinish",
+      "GetBattleData",
+      "Select",
+      "VisualizeData",
+      "AllCard",
+      "AllAttack",
+      "AgentStart",
+      "SearchBegin",
+      "SearchStep",
+      "SearchEnd",
+      "SearchRelease"
+    ],
+    "unbound_upstream": [
+      "AllCard",
+      "AllAttack",
+      "AgentStart",
+      "SearchBegin",
+      "SearchStep",
+      "SearchEnd",
+      "SearchRelease"
+    ],
+    "card_count": 1267,
+    "attack_count": 1556,
+    "kaggle_environments_version": "1.30.1",
+    "clock": {
+      "remainingOverageTime": 600,
+      "actTimeout": 0,
+      "runTimeout": 3000,
+      "episodeSteps": 10000
+    }
+  },
+  "schema": {
+    "games": 60,
+    "decisions_per_game": {
+      "mean": 111.7,
+      "median": 121.5,
+      "max": 225,
+      "per_player_mean": 55.8
+    },
+    "turns_per_game": {
+      "mean": 16.7,
+      "max": 43
+    },
+    "options_per_decision": {
+      "mean": 4.87,
+      "median": 4,
+      "p95": 13,
+      "max": 37
+    },
+    "select_types": [
+      {
+        "value": "MAIN",
+        "count": 3812,
+        "share": 0.5689
+      },
+      {
+        "value": "CARD",
+        "count": 2506,
+        "share": 0.374
+      },
+      {
+        "value": "ENERGY",
+        "count": 203,
+        "share": 0.0303
+      },
+      {
+        "value": "ATTACHED_CARD",
+        "count": 79,
+        "share": 0.0118
+      },
+      {
+        "value": "YES_NO",
+        "count": 60,
+        "share": 0.009
+      },
+      {
+        "value": "COUNT",
+        "count": 41,
+        "share": 0.0061
+      }
+    ],
+    "contexts": [
+      {
+        "value": "MAIN",
+        "count": 3812,
+        "share": 0.5689
+      },
+      {
+        "value": "TO_HAND",
+        "count": 718,
+        "share": 0.1071
+      },
+      {
+        "value": "ATTACH_TO",
+        "count": 471,
+        "share": 0.0703
+      },
+      {
+        "value": "ATTACH_FROM",
+        "count": 449,
+        "share": 0.067
+      },
+      {
+        "value": "SWITCH",
+        "count": 255,
+        "share": 0.0381
+      },
+      {
+        "value": "DISCARD_ENERGY",
+        "count": 203,
+        "share": 0.0303
+      },
+      {
+        "value": "DISCARD",
+        "count": 191,
+        "share": 0.0285
+      },
+      {
+        "value": "TO_ACTIVE",
+        "count": 137,
+        "share": 0.0204
+      },
+      {
+        "value": "TO_BENCH",
+        "count": 128,
+        "share": 0.0191
+      },
+      {
+        "value": "SETUP_ACTIVE_POKEMON",
+        "count": 120,
+        "share": 0.0179
+      },
+      {
+        "value": "DISCARD_ENERGY_CARD",
+        "count": 79,
+        "share": 0.0118
+      },
+      {
+        "value": "IS_FIRST",
+        "count": 60,
+        "share": 0.009
+      },
+      {
+        "value": "DRAW_COUNT",
+        "count": 41,
+        "share": 0.0061
+      },
+      {
+        "value": "SETUP_BENCH_POKEMON",
+        "count": 37,
+        "share": 0.0055
+      }
+    ],
+    "option_types": [
+      {
+        "value": "CARD",
+        "count": 8643,
+        "share": 0.2648
+      },
+      {
+        "value": "PLAY",
+        "count": 6763,
+        "share": 0.2072
+      },
+      {
+        "value": "ATTACH",
+        "count": 6750,
+        "share": 0.2068
+      },
+      {
+        "value": "END",
+        "count": 3812,
+        "share": 0.1168
+      },
+      {
+        "value": "ATTACK",
+        "count": 1750,
+        "share": 0.0536
+      },
+      {
+        "value": "RETREAT",
+        "count": 1428,
+        "share": 0.0437
+      },
+      {
+        "value": "ABILITY",
+        "count": 1311,
+        "share": 0.0402
+      },
+      {
+        "value": "EVOLVE",
+        "count": 1286,
+        "share": 0.0394
+      },
+      {
+        "value": "ENERGY",
+        "count": 519,
+        "share": 0.0159
+      },
+      {
+        "value": "NUMBER",
+        "count": 133,
+        "share": 0.0041
+      },
+      {
+        "value": "ENERGY_CARD",
+        "count": 129,
+        "share": 0.004
+      },
+      {
+        "value": "YES",
+        "count": 60,
+        "share": 0.0018
+      },
+      {
+        "value": "NO",
+        "count": 60,
+        "share": 0.0018
+      }
+    ],
+    "log_types": [
+      {
+        "value": "MOVE_CARD",
+        "count": 7724,
+        "share": 0.2292
+      },
+      {
+        "value": "DRAW",
+        "count": 4629,
+        "share": 0.1374
+      },
+      {
+        "value": "DRAW_REVERSE",
+        "count": 4434,
+        "share": 0.1316
+      },
+      {
+        "value": "MOVE_CARD_REVERSE",
+        "count": 3522,
+        "share": 0.1045
+      },
+      {
+        "value": "PLAY",
+        "count": 2679,
+        "share": 0.0795
+      },
+      {
+        "value": "TURN_START",
+        "count": 1912,
+        "share": 0.0567
+      },
+      {
+        "value": "SHUFFLE",
+        "count": 1909,
+        "share": 0.0566
+      },
+      {
+        "value": "ATTACH",
+        "count": 1903,
+        "share": 0.0565
+      },
+      {
+        "value": "TURN_END",
+        "count": 1792,
+        "share": 0.0532
+      },
+      {
+        "value": "ATTACK",
+        "count": 721,
+        "share": 0.0214
+      },
+      {
+        "value": "HP_CHANGE",
+        "count": 721,
+        "share": 0.0214
+      },
+      {
+        "value": "EVOLVE",
+        "count": 566,
+        "share": 0.0168
+      },
+      {
+        "value": "HAS_BASIC_POKEMON",
+        "count": 500,
+        "share": 0.0148
+      },
+      {
+        "value": "SWITCH",
+        "count": 497,
+        "share": 0.0147
+      },
+      {
+        "value": "COIN",
+        "count": 192,
+        "share": 0.0057
+      }
+    ],
+    "multi_select_ranges": [
+      {
+        "value": "0..1",
+        "count": 499,
+        "share": 0.7404
+      },
+      {
+        "value": "0..2",
+        "count": 110,
+        "share": 0.1632
+      },
+      {
+        "value": "1..2",
+        "count": 43,
+        "share": 0.0638
+      },
+      {
+        "value": "0..3",
+        "count": 22,
+        "share": 0.0326
+      }
+    ],
+    "observed_type_context_pairs": [
+      {
+        "select_type": "MAIN",
+        "context": "MAIN",
+        "count": 3812
+      },
+      {
+        "select_type": "CARD",
+        "context": "TO_HAND",
+        "count": 718
+      },
+      {
+        "select_type": "CARD",
+        "context": "ATTACH_TO",
+        "count": 471
+      },
+      {
+        "select_type": "CARD",
+        "context": "ATTACH_FROM",
+        "count": 449
+      },
+      {
+        "select_type": "CARD",
+        "context": "SWITCH",
+        "count": 255
+      },
+      {
+        "select_type": "ENERGY",
+        "context": "DISCARD_ENERGY",
+        "count": 203
+      },
+      {
+        "select_type": "CARD",
+        "context": "DISCARD",
+        "count": 191
+      },
+      {
+        "select_type": "CARD",
+        "context": "TO_ACTIVE",
+        "count": 137
+      },
+      {
+        "select_type": "CARD",
+        "context": "TO_BENCH",
+        "count": 128
+      },
+      {
+        "select_type": "CARD",
+        "context": "SETUP_ACTIVE_POKEMON",
+        "count": 120
+      },
+      {
+        "select_type": "ATTACHED_CARD",
+        "context": "DISCARD_ENERGY_CARD",
+        "count": 79
+      },
+      {
+        "select_type": "YES_NO",
+        "context": "IS_FIRST",
+        "count": 60
+      },
+      {
+        "select_type": "COUNT",
+        "context": "DRAW_COUNT",
+        "count": 41
+      },
+      {
+        "select_type": "CARD",
+        "context": "SETUP_BENCH_POKEMON",
+        "count": 37
+      }
+    ],
+    "undocumented_values": {},
+    "documented_but_never_seen": {
+      "contexts": [
+        "ACTIVATE",
+        "AFFECT_SPECIAL_CONDITION",
+        "ATTACK",
+        "COIN_HEAD",
+        "DAMAGE",
+        "DAMAGE_COUNTER",
+        "DAMAGE_COUNTER_ANY",
+        "DAMAGE_COUNTER_COUNT",
+        "DETACH_FROM",
+        "DEVOLVE",
+        "DISABLE_ATTACK",
+        "DISCARD_CARD_OR_ATTACHED_CARD",
+        "DISCARD_TOOL_CARD",
+        "EFFECT_TARGET",
+        "EVOLVE",
+        "EVOLVES_FROM",
+        "EVOLVES_TO",
+        "FIRST_EFFECT",
+        "HEAL",
+        "LOOK",
+        "MORE_DEVOLVE",
+        "MULLIGAN",
+        "NOT_MOVE",
+        "RECOVER_SPECIAL_CONDITION",
+        "REMOVE_DAMAGE_COUNTER",
+        "REMOVE_DAMAGE_COUNTER_COUNT",
+        "SKILL_ORDER",
+        "SWITCH_ENERGY",
+        "SWITCH_ENERGY_CARD",
+        "TO_DECK",
+        "TO_DECK_BOTTOM",
+        "TO_DECK_ENERGY",
+        "TO_FIELD",
+        "TO_HAND_ENERGY",
+        "TO_PRIZE"
+      ],
+      "option_types": [
+        "DISCARD",
+        "SKILL",
+        "SPECIAL_CONDITION",
+        "TOOL_CARD"
+      ]
+    }
+  }
+}
