@@ -137,9 +137,24 @@ def card_text(card: Card, db: CardDB) -> str:
 
 
 class TextEncoder:
-    """Frozen MiniLM, loaded once. Encodes are cached per input string."""
+    """Frozen MiniLM, loaded once. Encodes are cached per input string.
+
+    Forces offline mode before touching ``sentence_transformers``: by default
+    it phones home on every load to check for adapter-config updates, which
+    (a) is pointless once the model is already cached locally, (b) has thrown
+    a bare ``RuntimeError`` from inside its own retry/backoff path on a flaky
+    connection here rather than falling back to cache, and (c) would hang or
+    fail outright in the actual Kaggle submission container, which has no
+    network access at all. The model must already be cached (it is, from
+    every prior run in this repo) or this raises instead of hanging.
+    """
 
     def __init__(self, model_name: str = TEXT_MODEL_NAME) -> None:
+        import os  # noqa: PLC0415
+
+        os.environ.setdefault("HF_HUB_OFFLINE", "1")
+        os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
+
         from sentence_transformers import SentenceTransformer  # noqa: PLC0415
 
         self._model = SentenceTransformer(model_name)

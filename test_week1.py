@@ -184,7 +184,14 @@ class TestBCPolicySafety:
         net = BeliefSetDMCLite(card_mode="onehot", n_cards=table.n_cards)
         ckpt_path = tmp_path / "tiny.pt"
         torch.save(
-            {"state_dict": net.state_dict(), "card_mode": "onehot", "n_cards": table.n_cards, "card_ids": table.card_ids},
+            {
+                "state_dict": net.state_dict(),
+                "card_mode": "onehot",
+                "n_cards": table.n_cards,
+                "card_ids": table.card_ids,
+                "card_struct": table.struct,
+                "card_text": table.text,
+            },
             ckpt_path,
         )
         policy = load_bc_policy(ckpt_path, deck, db)

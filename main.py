@@ -110,11 +110,20 @@ def _build():
 
             deck = load_deck("lucario_fighting")
 
-        # Week 0's proven, ladder-validated heuristic stays the default. The
-        # Week-1 BC network is opt-in only -- it has not yet been submitted,
-        # so switching the *live* submission to it is a deliberate choice the
-        # operator makes, not something that happens silently on import.
+        # Week 0's proven, ladder-validated heuristic stays the fallback. The
+        # Week-1 BC network is opt-in: either an explicit env var (local
+        # testing) or a checkpoint file bundled alongside main.py (how a
+        # BC-flavoured submission ships it -- Kaggle's container has no way
+        # for us to set an env var, so the bundle has to carry its own
+        # default). Either way, switching what a *bundle* plays is a decision
+        # made at build time (``ptcg.tools.build_submission --bc-checkpoint``),
+        # not something that changes silently on import.
         bc_checkpoint = os.environ.get("PTCG_BC_CHECKPOINT")
+        if not bc_checkpoint:
+            bundled = _HERE / "bc_checkpoint.pt"
+            if bundled.exists():
+                bc_checkpoint = str(bundled)
+
         policy = None
         if bc_checkpoint:
             try:

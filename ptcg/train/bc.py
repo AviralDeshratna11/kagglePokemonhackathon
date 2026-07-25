@@ -211,6 +211,11 @@ def main(argv: list[str] | None = None) -> int:
             "card_mode": args.card_mode,
             "n_cards": table.n_cards,
             "card_ids": table.card_ids,
+            # Baked in so a live agent never has to rebuild the table (and,
+            # for text mode, never has to run MiniLM or even import
+            # sentence-transformers) at submission runtime.
+            "card_struct": table.struct,
+            "card_text": table.text,
             "history": result.as_dict(),
         },
         out,

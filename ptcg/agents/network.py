@@ -112,6 +112,19 @@ class CardTable:
         return self.id_to_idx.get(card_id, self.unknown_index)
 
     @classmethod
+    def from_tensors(cls, card_ids: list[int], struct: torch.Tensor, text: torch.Tensor | None) -> "CardTable":
+        """Reconstruct without touching ``db`` or MiniLM at all -- what a
+        submission loads at runtime. ``struct``/``text`` come straight from a
+        checkpoint saved by ``ptcg/train/bc.py``, computed once offline. The
+        alternative, calling :meth:`build` fresh, runs MiniLM over the full
+        card pool on the agent's very first decision (~20s measured locally)
+        -- harmless against the 600s cumulative budget in principle, but an
+        unnecessary risk against the undocumented per-move cap the community
+        reports seeing, for zero benefit since the embeddings are frozen and
+        deterministic anyway."""
+        return cls(card_ids=list(card_ids), id_to_idx={cid: i for i, cid in enumerate(card_ids)}, struct=struct, text=text)
+
+    @classmethod
     def build(cls, db: CardDB, with_text: bool = True) -> "CardTable":
         ids = sorted(c.card_id for c in db.all_cards())
         id_to_idx = {cid: i for i, cid in enumerate(ids)}

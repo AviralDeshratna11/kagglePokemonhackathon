@@ -69,20 +69,28 @@ class BCPolicy:
 
 def load_bc_policy(checkpoint_path: str | Path, deck_ids: Sequence[int], db: CardDB) -> BCPolicy:
     """Load a checkpoint saved by ``ptcg/train/bc.py`` into a ready-to-play
-    :class:`BCPolicy`. Rebuilds the card table fresh from ``db`` rather than
-    trusting anything cached on disk, and checks it lines up with what the
-    checkpoint was trained against -- a silently mismatched card ID -> row
-    mapping would make every score meaningless without ever raising."""
+    :class:`BCPolicy`. Uses the card embedding table baked into the
+    checkpoint (``card_struct``/``card_text``, computed once offline) rather
+    than rebuilding it from ``db``/MiniLM at runtime -- for text mode that
+    rebuild means running MiniLM over the full ~1,267-card pool, which
+    measured ~20s locally. That is harmless against the 600s cumulative
+    budget but an unnecessary risk against an undocumented per-move cap, for
+    a computation whose result is deterministic and already sitting in the
+    checkpoint. Still checked against the live card pool -- a silently
+    mismatched card ID -> row mapping would make every score meaningless
+    without ever raising, and this check costs nothing (no MiniLM involved).
+    """
     ckpt = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
     card_mode = ckpt["card_mode"]
 
-    table = CardTable.build(db, with_text=(card_mode == "text"))
-    if table.card_ids != ckpt["card_ids"]:
+    live_ids = sorted(c.card_id for c in db.all_cards())
+    if live_ids != ckpt["card_ids"]:
         raise ValueError(
-            "Card table built from the live engine does not match the checkpoint's "
+            "The live engine's card pool does not match the checkpoint's "
             "training-time card table (card pool changed?). Refusing to load a "
             "policy whose card-ID -> embedding-row mapping would silently be wrong."
         )
+    table = CardTable.from_tensors(ckpt["card_ids"], ckpt["card_struct"], ckpt.get("card_text"))
 
     model = BeliefSetDMCLite(card_mode=card_mode, n_cards=ckpt["n_cards"])
     model.load_state_dict(ckpt["state_dict"])

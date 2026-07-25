@@ -71,8 +71,17 @@ def _copy_tree(src: Path, dst: Path) -> int:
     return n
 
 
-def stage(deck_name: str, staging: Path, include_arch: str = "all") -> dict[str, Any]:
-    """Assemble the bundle contents in ``staging``."""
+def stage(
+    deck_name: str, staging: Path, include_arch: str = "all", bc_checkpoint: Path | None = None
+) -> dict[str, Any]:
+    """Assemble the bundle contents in ``staging``.
+
+    ``bc_checkpoint``, if given, is copied in as ``bc_checkpoint.pt`` --
+    ``main.py`` picks up a bundled file under that exact name as its default
+    policy when no ``PTCG_BC_CHECKPOINT`` env var is set (Kaggle's container
+    gives us no way to set one), so this is what actually makes a "BC
+    submission" play the network instead of the heuristic on the ladder.
+    """
     sys.path.insert(0, str(REPO))
     from ptcg.core.carddb import get_card_db
     from ptcg.decks.registry import deck_summary, load_deck, write_deck
@@ -86,6 +95,9 @@ def stage(deck_name: str, staging: Path, include_arch: str = "all") -> dict[str,
     staging.mkdir(parents=True, exist_ok=True)
     shutil.copy2(REPO / "main.py", staging / "main.py")
     write_deck(staging / "deck.csv", deck)
+
+    if bc_checkpoint is not None:
+        shutil.copy2(bc_checkpoint, staging / "bc_checkpoint.pt")
 
     n_pkg = _copy_tree(REPO / "ptcg", staging / "ptcg")
 
@@ -109,6 +121,7 @@ def stage(deck_name: str, staging: Path, include_arch: str = "all") -> dict[str,
         "package_files": n_pkg,
         "cg_source": str(cg_src),
         "cg_files": sorted(kept),
+        "bc_checkpoint": str(bc_checkpoint) if bc_checkpoint is not None else None,
     }
 
 
@@ -164,8 +177,11 @@ results = []
 for i in range({games}):
     r = play_match(agent_fn, agent_fn, deck, deck, seed=i)
     results.append(r.as_dict())
+_agent_obj = env.get("_AGENT")
+policy_used = getattr(getattr(_agent_obj, "policy", None), "name", None)
 print("__RESULT__" + json.dumps({{
     "load_seconds": round(load_s, 3),
+    "policy_used": policy_used,
     "deck_size": len(deck),
     "games": results,
 }}))
@@ -206,13 +222,14 @@ def build(
     include_arch: str = "all",
     games: int = 1,
     skip_verify: bool = False,
+    bc_checkpoint: Path | None = None,
 ) -> dict[str, Any]:
     out = out or (REPO / "dist" / "submission.tar.gz")
     out.parent.mkdir(parents=True, exist_ok=True)
 
     with tempfile.TemporaryDirectory() as td:
         staging = Path(td) / "bundle"
-        info = stage(deck_name, staging, include_arch=include_arch)
+        info = stage(deck_name, staging, include_arch=include_arch, bc_checkpoint=bc_checkpoint)
 
         if out.exists():
             out.unlink()
@@ -247,6 +264,15 @@ def build(
             "bundle failed self-play verification:\n"
             + json.dumps(info["verification"], indent=2)[:4000]
         )
+    if not skip_verify and bc_checkpoint is not None:
+        used = info["verification"].get("policy_used")
+        if used != "bc-v1":
+            raise SystemExit(
+                f"bc_checkpoint was bundled but the verification game used policy {used!r}, "
+                "not 'bc-v1' -- the checkpoint silently failed to load (missing torch/"
+                "sentence-transformers in the exec environment, or a mismatched card table). "
+                "Refusing to ship a BC bundle that would actually just play as the heuristic."
+            )
     return info
 
 
@@ -257,6 +283,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--arch", choices=["all", "linux"], default="all")
     ap.add_argument("--games", type=int, default=1, help="self-play games during verification")
     ap.add_argument("--skip-verify", action="store_true")
+    ap.add_argument("--bc-checkpoint", default=None, help="bundle this .pt as the default policy (see main.py)")
     args = ap.parse_args(argv)
 
     info = build(
@@ -265,6 +292,7 @@ def main(argv: list[str] | None = None) -> int:
         include_arch=args.arch,
         games=args.games,
         skip_verify=args.skip_verify,
+        bc_checkpoint=Path(args.bc_checkpoint) if args.bc_checkpoint else None,
     )
     print(json.dumps(info, indent=2, default=str))
     return 0
