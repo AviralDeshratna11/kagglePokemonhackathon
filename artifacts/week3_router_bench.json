@@ -1,0 +1,287 @@
+{
+  "games_per_pair": 150,
+  "seconds": 407.81,
+  "ladder": [
+    {
+      "agent": "first",
+      "mu": 515.4,
+      "sigma": 22.7,
+      "score": 447.2
+    },
+    {
+      "agent": "heuristic_only",
+      "mu": 427.2,
+      "sigma": 24.0,
+      "score": 355.1
+    },
+    {
+      "agent": "network_only",
+      "mu": 344.5,
+      "sigma": 24.6,
+      "score": 270.7
+    },
+    {
+      "agent": "greedy",
+      "mu": 280.9,
+      "sigma": 23.2,
+      "score": 211.1
+    },
+    {
+      "agent": "router",
+      "mu": 165.2,
+      "sigma": 23.5,
+      "score": 94.6
+    }
+  ],
+  "matrix": {
+    "router": {
+      "network_only": 0.54,
+      "heuristic_only": 0.5133,
+      "greedy": 0.96,
+      "first": 0.84
+    },
+    "network_only": {
+      "router": 0.46,
+      "heuristic_only": 0.46,
+      "greedy": 0.9667,
+      "first": 0.8933
+    },
+    "heuristic_only": {
+      "router": 0.4867,
+      "network_only": 0.54,
+      "greedy": 0.96,
+      "first": 0.84
+    },
+    "greedy": {
+      "router": 0.04,
+      "network_only": 0.0333,
+      "heuristic_only": 0.04,
+      "first": 0.14
+    },
+    "first": {
+      "router": 0.16,
+      "network_only": 0.1067,
+      "heuristic_only": 0.16,
+      "greedy": 0.86
+    }
+  },
+  "worst_case": {
+    "router": 0.5133,
+    "network_only": 0.46,
+    "heuristic_only": 0.4867,
+    "greedy": 0.0333,
+    "first": 0.1067
+  },
+  "duels": [
+    {
+      "a": "router",
+      "b": "network_only",
+      "games": 150,
+      "a_winrate": 0.54,
+      "ci95": [
+        0.4602,
+        0.6178
+      ],
+      "a_winrate_going_first": 0.6267,
+      "a_winrate_going_second": 0.4533,
+      "draws": 0,
+      "mean_turns": 8.97,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 62.0,
+      "a_mean_game_seconds": 0.3187,
+      "reasons": {
+        "engine_result": 150
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "router",
+      "b": "heuristic_only",
+      "games": 150,
+      "a_winrate": 0.5133,
+      "ci95": [
+        0.434,
+        0.592
+      ],
+      "a_winrate_going_first": 0.52,
+      "a_winrate_going_second": 0.5067,
+      "draws": 0,
+      "mean_turns": 9.75,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.347,
+      "reasons": {
+        "engine_result": 150
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "router",
+      "b": "greedy",
+      "games": 150,
+      "a_winrate": 0.96,
+      "ci95": [
+        0.9155,
+        0.9815
+      ],
+      "a_winrate_going_first": 1.0,
+      "a_winrate_going_second": 0.92,
+      "draws": 0,
+      "mean_turns": 6.53,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.2197,
+      "reasons": {
+        "engine_result": 150
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "router",
+      "b": "first",
+      "games": 150,
+      "a_winrate": 0.84,
+      "ci95": [
+        0.773,
+        0.8901
+      ],
+      "a_winrate_going_first": 0.8667,
+      "a_winrate_going_second": 0.8133,
+      "draws": 0,
+      "mean_turns": 10.22,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.355,
+      "reasons": {
+        "engine_result": 150
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "network_only",
+      "b": "heuristic_only",
+      "games": 150,
+      "a_winrate": 0.46,
+      "ci95": [
+        0.3822,
+        0.5398
+      ],
+      "a_winrate_going_first": 0.52,
+      "a_winrate_going_second": 0.4,
+      "draws": 0,
+      "mean_turns": 9.27,
+      "a_max_decision_ms": 32.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.3352,
+      "reasons": {
+        "engine_result": 150
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "network_only",
+      "b": "greedy",
+      "games": 150,
+      "a_winrate": 0.9667,
+      "ci95": [
+        0.9243,
+        0.9857
+      ],
+      "a_winrate_going_first": 1.0,
+      "a_winrate_going_second": 0.9333,
+      "draws": 0,
+      "mean_turns": 6.71,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.2061,
+      "reasons": {
+        "engine_result": 150
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "network_only",
+      "b": "first",
+      "games": 150,
+      "a_winrate": 0.8933,
+      "ci95": [
+        0.8338,
+        0.9333
+      ],
+      "a_winrate_going_first": 0.9067,
+      "a_winrate_going_second": 0.88,
+      "draws": 0,
+      "mean_turns": 9.69,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.3462,
+      "reasons": {
+        "engine_result": 150
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "heuristic_only",
+      "b": "greedy",
+      "games": 150,
+      "a_winrate": 0.96,
+      "ci95": [
+        0.9155,
+        0.9815
+      ],
+      "a_winrate_going_first": 0.9867,
+      "a_winrate_going_second": 0.9333,
+      "draws": 0,
+      "mean_turns": 6.07,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.0044,
+      "reasons": {
+        "engine_result": 150
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "heuristic_only",
+      "b": "first",
+      "games": 150,
+      "a_winrate": 0.84,
+      "ci95": [
+        0.773,
+        0.8901
+      ],
+      "a_winrate_going_first": 0.8533,
+      "a_winrate_going_second": 0.8267,
+      "draws": 0,
+      "mean_turns": 10.35,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.0073,
+      "reasons": {
+        "engine_result": 150
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "greedy",
+      "b": "first",
+      "games": 150,
+      "a_winrate": 0.14,
+      "ci95": [
+        0.0934,
+        0.2046
+      ],
+      "a_winrate_going_first": 0.24,
+      "a_winrate_going_second": 0.04,
+      "draws": 0,
+      "mean_turns": 7.36,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.0015,
+      "reasons": {
+        "engine_result": 150
+      },
+      "invalid_by_player": {}
+    }
+  ]
+}

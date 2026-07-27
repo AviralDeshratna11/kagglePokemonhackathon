@@ -1,0 +1,38 @@
+{
+  "bc_text": {
+    "observation_fuzz": {
+      "cases": 20000,
+      "ok": true,
+      "illegal_actions": 0,
+      "n_failures": 0,
+      "failures": [],
+      "crashes": []
+    },
+    "selfplay_fuzz": {
+      "cases": 150,
+      "ok": true,
+      "illegal_actions": 0,
+      "n_failures": 0,
+      "failures": [],
+      "crashes": []
+    }
+  },
+  "distill_medium": {
+    "observation_fuzz": {
+      "cases": 20000,
+      "ok": true,
+      "illegal_actions": 0,
+      "n_failures": 0,
+      "failures": [],
+      "crashes": []
+    },
+    "selfplay_fuzz": {
+      "cases": 150,
+      "ok": true,
+      "illegal_actions": 0,
+      "n_failures": 0,
+      "failures": [],
+      "crashes": []
+    }
+  }
+}

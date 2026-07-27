@@ -50,13 +50,27 @@ class BCPolicy:
         candidates: Sequence[ActionCandidate],
         deadline: Deadline,
     ) -> list[float]:
+        scores, _value = self.score_and_value(view, candidates, deadline)
+        return scores
+
+    def score_and_value(
+        self,
+        view: ObsView,
+        candidates: Sequence[ActionCandidate],
+        deadline: Deadline,
+    ) -> tuple[list[float], float | None]:
+        """Same as :meth:`score`, plus the value head's win-probability
+        estimate for this decision -- used by ``RouterPolicy`` to gate on
+        confidence without a second forward pass."""
         if not candidates:
-            return []
+            return [], None
         inp = encode_view(view, candidates, self.table, self.card_mode)
         with torch.no_grad():
             out = self.model(inp)
         logits = out["policy_logits"][0]
-        return [float(x) for x in logits[: len(candidates)].tolist()]
+        scores = [float(x) for x in logits[: len(candidates)].tolist()]
+        value = float(out["value"][0])
+        return scores, value
 
     def desired_count(
         self,
@@ -92,7 +106,7 @@ def load_bc_policy(checkpoint_path: str | Path, deck_ids: Sequence[int], db: Car
         )
     table = CardTable.from_tensors(ckpt["card_ids"], ckpt["card_struct"], ckpt.get("card_text"))
 
-    model = BeliefSetDMCLite(card_mode=card_mode, n_cards=ckpt["n_cards"])
+    model = BeliefSetDMCLite(card_mode=card_mode, n_cards=ckpt["n_cards"], dims=ckpt.get("dims"))
     model.load_state_dict(ckpt["state_dict"])
     model.eval()
     return BCPolicy(deck_ids, model, table, card_mode)

@@ -1,0 +1,845 @@
+{
+  "deck": "lucario_fighting",
+  "rounds": 6,
+  "games_per_round": 400,
+  "history": [
+    {
+      "round": 0,
+      "temperature": 1.0,
+      "generation": {
+        "games": 400,
+        "total_records": 13961,
+        "seconds": 208.96,
+        "opponent_counts": {
+          "frozen-teacher": 185,
+          "greedy": 21,
+          "first": 18,
+          "heuristic": 159,
+          "random": 17
+        },
+        "opponent_results": {
+          "frozen-teacher": {
+            "win": 94,
+            "loss": 91,
+            "draw": 0
+          },
+          "greedy": {
+            "win": 20,
+            "loss": 1,
+            "draw": 0
+          },
+          "first": {
+            "win": 17,
+            "loss": 1,
+            "draw": 0
+          },
+          "heuristic": {
+            "win": 85,
+            "loss": 74,
+            "draw": 0
+          },
+          "random": {
+            "win": 17,
+            "loss": 0,
+            "draw": 0
+          }
+        },
+        "reasons": {
+          "engine_result": 400
+        },
+        "out_dir": "artifacts\\selfplay_v2\\round_0"
+      },
+      "training": {
+        "epochs": [
+          {
+            "epoch": 0,
+            "policy_loss": -0.0036551455562405543,
+            "value_loss": 0.5848698536318734,
+            "kl_loss": 0.007874010310995062,
+            "belief_loss": 1.95634332238394,
+            "mean_grad_norm_pre_clip": 1.9754442511840584
+          },
+          {
+            "epoch": 1,
+            "policy_loss": -0.011603624476085855,
+            "value_loss": 0.5634250466935093,
+            "kl_loss": 0.00900344193870549,
+            "belief_loss": 1.927181863176832,
+            "mean_grad_norm_pre_clip": 1.9740023503509483
+          }
+        ]
+      },
+      "training_time_win_rate_noisy": {
+        "frozen-teacher": 0.5311784686311752,
+        "greedy": 0.9882520115148736,
+        "first": 0.9953019082386163,
+        "heuristic": 0.8024735924461897,
+        "random": 0.996241526590893
+      },
+      "worst_case_noisy": [
+        "frozen-teacher",
+        0.5311784686311752
+      ],
+      "deterministic_check": {
+        "vs_frozen_teacher": {
+          "a": "trainee",
+          "b": "frozen-teacher",
+          "games": 60,
+          "a_winrate": 0.55,
+          "ci95": [
+            0.4249,
+            0.6691
+          ],
+          "a_winrate_going_first": 0.6667,
+          "a_winrate_going_second": 0.4333,
+          "draws": 0,
+          "mean_turns": 9.88,
+          "a_max_decision_ms": 16.0,
+          "b_max_decision_ms": 31.0,
+          "a_mean_game_seconds": 0.3437,
+          "reasons": {
+            "engine_result": 60
+          },
+          "invalid_by_player": {}
+        },
+        "vs_heuristic": {
+          "a": "trainee",
+          "b": "heuristic",
+          "games": 60,
+          "a_winrate": 0.4167,
+          "ci95": [
+            0.3006,
+            0.5427
+          ],
+          "a_winrate_going_first": 0.4,
+          "a_winrate_going_second": 0.4333,
+          "draws": 0,
+          "mean_turns": 9.42,
+          "a_max_decision_ms": 31.0,
+          "b_max_decision_ms": 16.0,
+          "a_mean_game_seconds": 0.3244,
+          "reasons": {
+            "engine_result": 60
+          },
+          "invalid_by_player": {}
+        }
+      },
+      "checkpoint": "artifacts\\selfplay_v2\\checkpoint_round_0.pt"
+    },
+    {
+      "round": 1,
+      "temperature": 0.83,
+      "generation": {
+        "games": 400,
+        "total_records": 14154,
+        "seconds": 244.22,
+        "opponent_counts": {
+          "past-self-0": 138,
+          "random": 8,
+          "frozen-teacher": 134,
+          "heuristic": 114,
+          "greedy": 3,
+          "first": 3
+        },
+        "opponent_results": {
+          "past-self-0": {
+            "win": 64,
+            "loss": 74,
+            "draw": 0
+          },
+          "random": {
+            "win": 8,
+            "loss": 0,
+            "draw": 0
+          },
+          "frozen-teacher": {
+            "win": 54,
+            "loss": 80,
+            "draw": 0
+          },
+          "heuristic": {
+            "win": 60,
+            "loss": 54,
+            "draw": 0
+          },
+          "greedy": {
+            "win": 3,
+            "loss": 0,
+            "draw": 0
+          },
+          "first": {
+            "win": 3,
+            "loss": 0,
+            "draw": 0
+          }
+        },
+        "reasons": {
+          "engine_result": 400
+        },
+        "out_dir": "artifacts\\selfplay_v2\\round_1"
+      },
+      "training": {
+        "epochs": [
+          {
+            "epoch": 0,
+            "policy_loss": -0.007764188055410814,
+            "value_loss": 0.5896704601251462,
+            "kl_loss": 0.010050322766833653,
+            "belief_loss": 1.955334577504456,
+            "mean_grad_norm_pre_clip": 1.996305025550324
+          },
+          {
+            "epoch": 1,
+            "policy_loss": -0.011813978902517255,
+            "value_loss": 0.5736846514079318,
+            "kl_loss": 0.011911677604827055,
+            "belief_loss": 1.937694422002579,
+            "mean_grad_norm_pre_clip": 2.020481581690471
+          }
+        ]
+      },
+      "training_time_win_rate_noisy": {
+        "frozen-teacher": 0.6719370931936057,
+        "greedy": 0.9950438173578373,
+        "first": 0.9980179925381663,
+        "heuristic": 0.33147441570501224,
+        "random": 0.9996237282709175,
+        "past-self-0": 0.8112285593838926
+      },
+      "worst_case_noisy": [
+        "heuristic",
+        0.33147441570501224
+      ],
+      "deterministic_check": {
+        "vs_frozen_teacher": {
+          "a": "trainee",
+          "b": "frozen-teacher",
+          "games": 60,
+          "a_winrate": 0.55,
+          "ci95": [
+            0.4249,
+            0.6691
+          ],
+          "a_winrate_going_first": 0.5667,
+          "a_winrate_going_second": 0.5333,
+          "draws": 0,
+          "mean_turns": 8.98,
+          "a_max_decision_ms": 78.0,
+          "b_max_decision_ms": 78.0,
+          "a_mean_game_seconds": 0.4231,
+          "reasons": {
+            "engine_result": 60
+          },
+          "invalid_by_player": {}
+        },
+        "vs_heuristic": {
+          "a": "trainee",
+          "b": "heuristic",
+          "games": 60,
+          "a_winrate": 0.4333,
+          "ci95": [
+            0.3157,
+            0.559
+          ],
+          "a_winrate_going_first": 0.5,
+          "a_winrate_going_second": 0.3667,
+          "draws": 0,
+          "mean_turns": 9.57,
+          "a_max_decision_ms": 125.0,
+          "b_max_decision_ms": 16.0,
+          "a_mean_game_seconds": 0.4653,
+          "reasons": {
+            "engine_result": 60
+          },
+          "invalid_by_player": {}
+        }
+      },
+      "checkpoint": "artifacts\\selfplay_v2\\checkpoint_round_1.pt"
+    },
+    {
+      "round": 2,
+      "temperature": 0.6599999999999999,
+      "generation": {
+        "games": 400,
+        "total_records": 13978,
+        "seconds": 298.82,
+        "opponent_counts": {
+          "heuristic": 67,
+          "past-self-1": 86,
+          "frozen-teacher": 156,
+          "past-self-0": 66,
+          "random": 3,
+          "first": 21,
+          "greedy": 1
+        },
+        "opponent_results": {
+          "heuristic": {
+            "win": 39,
+            "loss": 28,
+            "draw": 0
+          },
+          "past-self-1": {
+            "win": 36,
+            "loss": 50,
+            "draw": 0
+          },
+          "frozen-teacher": {
+            "win": 73,
+            "loss": 83,
+            "draw": 0
+          },
+          "past-self-0": {
+            "win": 31,
+            "loss": 35,
+            "draw": 0
+          },
+          "random": {
+            "win": 3,
+            "loss": 0,
+            "draw": 0
+          },
+          "first": {
+            "win": 12,
+            "loss": 9,
+            "draw": 0
+          },
+          "greedy": {
+            "win": 1,
+            "loss": 0,
+            "draw": 0
+          }
+        },
+        "reasons": {
+          "engine_result": 400
+        },
+        "out_dir": "artifacts\\selfplay_v2\\round_2"
+      },
+      "training": {
+        "epochs": [
+          {
+            "epoch": 0,
+            "policy_loss": -0.007941694747617377,
+            "value_loss": 0.5810029907842589,
+            "kl_loss": 0.012912514982451448,
+            "belief_loss": 1.9427382409200187,
+            "mean_grad_norm_pre_clip": 2.065249732472253
+          },
+          {
+            "epoch": 1,
+            "policy_loss": -0.012909009781424115,
+            "value_loss": 0.5683054041206019,
+            "kl_loss": 0.012026932501676333,
+            "belief_loss": 1.9307145301221718,
+            "mean_grad_norm_pre_clip": 2.0585394896005944
+          }
+        ]
+      },
+      "training_time_win_rate_noisy": {
+        "frozen-teacher": 0.5813276462769017,
+        "greedy": 0.996282863018378,
+        "first": 0.8288882005549335,
+        "heuristic": 0.9049754375236105,
+        "random": 0.9998412603642933,
+        "past-self-0": 0.18669127497135826,
+        "past-self-1": 0.025489112233745375
+      },
+      "worst_case_noisy": [
+        "past-self-1",
+        0.025489112233745375
+      ],
+      "deterministic_check": {
+        "vs_frozen_teacher": {
+          "a": "trainee",
+          "b": "frozen-teacher",
+          "games": 60,
+          "a_winrate": 0.5167,
+          "ci95": [
+            0.3931,
+            0.6383
+          ],
+          "a_winrate_going_first": 0.5667,
+          "a_winrate_going_second": 0.4667,
+          "draws": 0,
+          "mean_turns": 9.65,
+          "a_max_decision_ms": 32.0,
+          "b_max_decision_ms": 47.0,
+          "a_mean_game_seconds": 0.3652,
+          "reasons": {
+            "engine_result": 60
+          },
+          "invalid_by_player": {}
+        },
+        "vs_heuristic": {
+          "a": "trainee",
+          "b": "heuristic",
+          "games": 60,
+          "a_winrate": 0.55,
+          "ci95": [
+            0.4249,
+            0.6691
+          ],
+          "a_winrate_going_first": 0.5667,
+          "a_winrate_going_second": 0.5333,
+          "draws": 0,
+          "mean_turns": 9.35,
+          "a_max_decision_ms": 31.0,
+          "b_max_decision_ms": 16.0,
+          "a_mean_game_seconds": 0.371,
+          "reasons": {
+            "engine_result": 60
+          },
+          "invalid_by_player": {}
+        }
+      },
+      "checkpoint": "artifacts\\selfplay_v2\\checkpoint_round_2.pt"
+    },
+    {
+      "round": 3,
+      "temperature": 0.49,
+      "generation": {
+        "games": 400,
+        "total_records": 14429,
+        "seconds": 264.93,
+        "opponent_counts": {
+          "past-self-0": 63,
+          "past-self-1": 64,
+          "frozen-teacher": 112,
+          "first": 21,
+          "past-self-2": 58,
+          "heuristic": 75,
+          "random": 2,
+          "greedy": 5
+        },
+        "opponent_results": {
+          "past-self-0": {
+            "win": 36,
+            "loss": 27,
+            "draw": 0
+          },
+          "past-self-1": {
+            "win": 35,
+            "loss": 29,
+            "draw": 0
+          },
+          "frozen-teacher": {
+            "win": 49,
+            "loss": 63,
+            "draw": 0
+          },
+          "first": {
+            "win": 15,
+            "loss": 6,
+            "draw": 0
+          },
+          "past-self-2": {
+            "win": 35,
+            "loss": 23,
+            "draw": 0
+          },
+          "heuristic": {
+            "win": 34,
+            "loss": 41,
+            "draw": 0
+          },
+          "random": {
+            "win": 2,
+            "loss": 0,
+            "draw": 0
+          },
+          "greedy": {
+            "win": 5,
+            "loss": 0,
+            "draw": 0
+          }
+        },
+        "reasons": {
+          "engine_result": 400
+        },
+        "out_dir": "artifacts\\selfplay_v2\\round_3"
+      },
+      "training": {
+        "epochs": [
+          {
+            "epoch": 0,
+            "policy_loss": -0.00916339249859374,
+            "value_loss": 0.5801156966658241,
+            "kl_loss": 0.011731146572045761,
+            "belief_loss": 1.9398238748119017,
+            "mean_grad_norm_pre_clip": 1.9231347238716732
+          },
+          {
+            "epoch": 1,
+            "policy_loss": -0.013290715105716942,
+            "value_loss": 0.5701337083586251,
+            "kl_loss": 0.014327040680586175,
+            "belief_loss": 1.9302592624596682,
+            "mean_grad_norm_pre_clip": 2.1253213744428243
+          }
+        ]
+      },
+      "training_time_win_rate_noisy": {
+        "frozen-teacher": 0.48980391789051636,
+        "greedy": 0.9991179059701816,
+        "first": 0.7609485740059889,
+        "heuristic": 0.7426187524721091,
+        "random": 0.9999107089549151,
+        "past-self-0": 0.9221290372808414,
+        "past-self-1": 0.6949070354774896,
+        "past-self-2": 0.6565056862309245
+      },
+      "worst_case_noisy": [
+        "frozen-teacher",
+        0.48980391789051636
+      ],
+      "deterministic_check": {
+        "vs_frozen_teacher": {
+          "a": "trainee",
+          "b": "frozen-teacher",
+          "games": 60,
+          "a_winrate": 0.4833,
+          "ci95": [
+            0.3617,
+            0.6069
+          ],
+          "a_winrate_going_first": 0.4333,
+          "a_winrate_going_second": 0.5333,
+          "draws": 0,
+          "mean_turns": 9.72,
+          "a_max_decision_ms": 16.0,
+          "b_max_decision_ms": 47.0,
+          "a_mean_game_seconds": 0.3558,
+          "reasons": {
+            "engine_result": 60
+          },
+          "invalid_by_player": {}
+        },
+        "vs_heuristic": {
+          "a": "trainee",
+          "b": "heuristic",
+          "games": 60,
+          "a_winrate": 0.55,
+          "ci95": [
+            0.4249,
+            0.6691
+          ],
+          "a_winrate_going_first": 0.7667,
+          "a_winrate_going_second": 0.3333,
+          "draws": 0,
+          "mean_turns": 8.85,
+          "a_max_decision_ms": 31.0,
+          "b_max_decision_ms": 16.0,
+          "a_mean_game_seconds": 0.3334,
+          "reasons": {
+            "engine_result": 60
+          },
+          "invalid_by_player": {}
+        }
+      },
+      "checkpoint": "artifacts\\selfplay_v2\\checkpoint_round_3.pt"
+    },
+    {
+      "round": 4,
+      "temperature": 0.31999999999999995,
+      "generation": {
+        "games": 400,
+        "total_records": 15148,
+        "seconds": 287.72,
+        "opponent_counts": {
+          "past-self-2": 86,
+          "frozen-teacher": 67,
+          "first": 9,
+          "past-self-1": 41,
+          "heuristic": 85,
+          "past-self-3": 51,
+          "past-self-0": 59,
+          "random": 2
+        },
+        "opponent_results": {
+          "past-self-2": {
+            "win": 35,
+            "loss": 51,
+            "draw": 0
+          },
+          "frozen-teacher": {
+            "win": 30,
+            "loss": 37,
+            "draw": 0
+          },
+          "first": {
+            "win": 9,
+            "loss": 0,
+            "draw": 0
+          },
+          "past-self-1": {
+            "win": 27,
+            "loss": 14,
+            "draw": 0
+          },
+          "heuristic": {
+            "win": 40,
+            "loss": 45,
+            "draw": 0
+          },
+          "past-self-3": {
+            "win": 27,
+            "loss": 24,
+            "draw": 0
+          },
+          "past-self-0": {
+            "win": 28,
+            "loss": 31,
+            "draw": 0
+          },
+          "random": {
+            "win": 2,
+            "loss": 0,
+            "draw": 0
+          }
+        },
+        "reasons": {
+          "engine_result": 400
+        },
+        "out_dir": "artifacts\\selfplay_v2\\round_4"
+      },
+      "training": {
+        "epochs": [
+          {
+            "epoch": 0,
+            "policy_loss": -0.010693250765594103,
+            "value_loss": 0.5824172451360656,
+            "kl_loss": 0.01268040190483398,
+            "belief_loss": 1.9525768052092063,
+            "mean_grad_norm_pre_clip": 1.8881682481314435
+          },
+          {
+            "epoch": 1,
+            "policy_loss": -0.010744670313382616,
+            "value_loss": 0.5723455146962888,
+            "kl_loss": 0.012357642176267196,
+            "belief_loss": 1.9411172211086536,
+            "mean_grad_norm_pre_clip": 1.9210688288825046
+          }
+        ]
+      },
+      "training_time_win_rate_noisy": {
+        "frozen-teacher": 0.3926723082908325,
+        "greedy": 0.9991179059701816,
+        "first": 0.9820508986746213,
+        "heuristic": 0.601644072722456,
+        "random": 0.9999497737871397,
+        "past-self-0": 0.7603768259515992,
+        "past-self-1": 0.7809535522218282,
+        "past-self-2": 0.3977664605093605,
+        "past-self-3": 0.5904160765201448
+      },
+      "worst_case_noisy": [
+        "frozen-teacher",
+        0.3926723082908325
+      ],
+      "deterministic_check": {
+        "vs_frozen_teacher": {
+          "a": "trainee",
+          "b": "frozen-teacher",
+          "games": 60,
+          "a_winrate": 0.5333,
+          "ci95": [
+            0.4089,
+            0.6537
+          ],
+          "a_winrate_going_first": 0.5667,
+          "a_winrate_going_second": 0.5,
+          "draws": 0,
+          "mean_turns": 9.67,
+          "a_max_decision_ms": 63.0,
+          "b_max_decision_ms": 32.0,
+          "a_mean_game_seconds": 0.4176,
+          "reasons": {
+            "engine_result": 60
+          },
+          "invalid_by_player": {}
+        },
+        "vs_heuristic": {
+          "a": "trainee",
+          "b": "heuristic",
+          "games": 60,
+          "a_winrate": 0.5,
+          "ci95": [
+            0.3773,
+            0.6227
+          ],
+          "a_winrate_going_first": 0.6,
+          "a_winrate_going_second": 0.4,
+          "draws": 0,
+          "mean_turns": 9.87,
+          "a_max_decision_ms": 31.0,
+          "b_max_decision_ms": 16.0,
+          "a_mean_game_seconds": 0.4053,
+          "reasons": {
+            "engine_result": 60
+          },
+          "invalid_by_player": {}
+        }
+      },
+      "checkpoint": "artifacts\\selfplay_v2\\checkpoint_round_4.pt"
+    },
+    {
+      "round": 5,
+      "temperature": 0.15000000000000002,
+      "generation": {
+        "games": 400,
+        "total_records": 14581,
+        "seconds": 330.44,
+        "opponent_counts": {
+          "past-self-1": 50,
+          "frozen-teacher": 71,
+          "past-self-4": 56,
+          "past-self-2": 58,
+          "past-self-3": 65,
+          "past-self-0": 56,
+          "heuristic": 37,
+          "first": 2,
+          "greedy": 2,
+          "random": 3
+        },
+        "opponent_results": {
+          "past-self-1": {
+            "win": 24,
+            "loss": 26,
+            "draw": 0
+          },
+          "frozen-teacher": {
+            "win": 28,
+            "loss": 43,
+            "draw": 0
+          },
+          "past-self-4": {
+            "win": 27,
+            "loss": 29,
+            "draw": 0
+          },
+          "past-self-2": {
+            "win": 28,
+            "loss": 30,
+            "draw": 0
+          },
+          "past-self-3": {
+            "win": 28,
+            "loss": 37,
+            "draw": 0
+          },
+          "past-self-0": {
+            "win": 24,
+            "loss": 32,
+            "draw": 0
+          },
+          "heuristic": {
+            "win": 16,
+            "loss": 21,
+            "draw": 0
+          },
+          "first": {
+            "win": 2,
+            "loss": 0,
+            "draw": 0
+          },
+          "greedy": {
+            "win": 2,
+            "loss": 0,
+            "draw": 0
+          },
+          "random": {
+            "win": 3,
+            "loss": 0,
+            "draw": 0
+          }
+        },
+        "reasons": {
+          "engine_result": 400
+        },
+        "out_dir": "artifacts\\selfplay_v2\\round_5"
+      },
+      "training": {
+        "epochs": [
+          {
+            "epoch": 0,
+            "policy_loss": -0.005802598251694988,
+            "value_loss": 0.5811854742966706,
+            "kl_loss": 0.012136550828646876,
+            "belief_loss": 1.9526072407713682,
+            "mean_grad_norm_pre_clip": 1.798897085548087
+          },
+          {
+            "epoch": 1,
+            "policy_loss": -0.008046218494853784,
+            "value_loss": 0.568340742118063,
+            "kl_loss": 0.011840260346183401,
+            "belief_loss": 1.9425835515768077,
+            "mean_grad_norm_pre_clip": 1.831094178107511
+          }
+        ]
+      },
+      "training_time_win_rate_noisy": {
+        "frozen-teacher": 0.41827005424776525,
+        "greedy": 0.9995038221082271,
+        "first": 0.9899036305044745,
+        "heuristic": 0.24163476955267796,
+        "random": 0.9999788108164496,
+        "past-self-0": 0.7800789266896319,
+        "past-self-1": 0.8676533547681159,
+        "past-self-2": 0.6357738168693174,
+        "past-self-3": 0.5543924661237078,
+        "past-self-4": 0.491327736698384
+      },
+      "worst_case_noisy": [
+        "heuristic",
+        0.24163476955267796
+      ],
+      "deterministic_check": {
+        "vs_frozen_teacher": {
+          "a": "trainee",
+          "b": "frozen-teacher",
+          "games": 60,
+          "a_winrate": 0.5167,
+          "ci95": [
+            0.3931,
+            0.6383
+          ],
+          "a_winrate_going_first": 0.5,
+          "a_winrate_going_second": 0.5333,
+          "draws": 0,
+          "mean_turns": 9.55,
+          "a_max_decision_ms": 16.0,
+          "b_max_decision_ms": 16.0,
+          "a_mean_game_seconds": 0.3646,
+          "reasons": {
+            "engine_result": 60
+          },
+          "invalid_by_player": {}
+        },
+        "vs_heuristic": {
+          "a": "trainee",
+          "b": "heuristic",
+          "games": 60,
+          "a_winrate": 0.4,
+          "ci95": [
+            0.2857,
+            0.5263
+          ],
+          "a_winrate_going_first": 0.3333,
+          "a_winrate_going_second": 0.4667,
+          "draws": 0,
+          "mean_turns": 9.43,
+          "a_max_decision_ms": 16.0,
+          "b_max_decision_ms": 16.0,
+          "a_mean_game_seconds": 0.3594,
+          "reasons": {
+            "engine_result": 60
+          },
+          "invalid_by_player": {}
+        }
+      },
+      "checkpoint": "artifacts\\selfplay_v2\\checkpoint_round_5.pt"
+    }
+  ],
+  "final_checkpoint": "artifacts\\selfplay_v2\\checkpoint_round_5.pt"
+}

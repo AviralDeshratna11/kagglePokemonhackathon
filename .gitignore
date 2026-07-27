@@ -16,9 +16,13 @@ env/
 
 # Generated training data / model artifacts (regenerate via ptcg/tools/*)
 artifacts/traces/
+artifacts/selfplay_v2*/
 *.pt
 *.pth
 dist/
+
+# Noisy tool-run logs
+*.log
 
 # Old superseded package snapshot (see session notes)
 ptcg_stub_backup/

@@ -22,6 +22,17 @@ is submitted, so an illegal index is caught here rather than as an
 that curated decks never reach. The blueprint flags one such interaction as a
 reproducible segfault; since a native crash takes the whole process down, this
 runs each batch in a child process so a crash is *recorded* rather than fatal.
+
+**The network path, specifically** (Week 3). Week 0 fuzzed only
+``HeuristicPolicy``; the network policies (``BCPolicy`` and anything built on
+``BeliefSetDMCLite``) parse a materially different, more structured slice of
+the observation (``encode_view``'s zone extraction) that synthetic garbage
+observations don't always exercise the same way. :func:`fuzz_selfplay_checkpoint`
+plays real (if randomized) games with a checkpoint-loaded policy on one seat,
+in the same child-process containment as :func:`fuzz_selfplay` -- the
+checkpoint is reconstructed *inside* the worker from a plain file path rather
+than passed as a live object, because Windows' ``spawn`` multiprocessing
+context cannot pickle a closure over a loaded ``torch.nn.Module``.
 """
 
 from __future__ import annotations
@@ -39,7 +50,10 @@ from ..core.clock import BudgetManager
 from ..core.safety import SafetyShell, sanitize_selection
 from ..agents.fallback import FallbackPolicy
 
-__all__ = ["fuzz_observations", "fuzz_selfplay", "random_legal_deck", "FuzzReport"]
+__all__ = [
+    "fuzz_observations", "fuzz_selfplay", "fuzz_selfplay_checkpoint",
+    "random_legal_deck", "FuzzReport",
+]
 
 
 @dataclass
@@ -286,6 +300,123 @@ def fuzz_selfplay(
         n = min(batch, games - done)
         q = ctx.Queue()
         p = ctx.Process(target=_selfplay_worker, args=(n, seed + 1000 * batch_i, random_decks, q))
+        p.start()
+        p.join(timeout)
+
+        if p.is_alive():
+            p.terminate()
+            p.join()
+            rep.crashes.append({"batch": batch_i, "kind": "hang", "games": n})
+            rep.ok = False
+        elif p.exitcode not in (0, None):
+            rep.crashes.append(
+                {"batch": batch_i, "kind": "native_crash", "exitcode": p.exitcode, "games": n}
+            )
+            rep.ok = False
+        else:
+            try:
+                res = q.get_nowait()
+            except Exception:  # noqa: BLE001
+                res = {"error": "no result"}
+            if res.get("error"):
+                rep.fail(batch=batch_i, kind="worker_error", **res)
+            else:
+                rep.cases += res.get("games", 0)
+                rep.illegal_actions += res.get("illegal", 0)
+                if res.get("illegal"):
+                    rep.fail(batch=batch_i, kind="illegal_action", n=res["illegal"])
+        done += n
+        batch_i += 1
+    return rep
+
+
+def _selfplay_checkpoint_worker(checkpoint_path: str, games: int, seed: int, random_decks: bool, opponent: str, q) -> None:
+    """Same containment pattern as :func:`_selfplay_worker`, but one seat is
+    the checkpoint-loaded network policy instead of ``RandomPolicy``. Runs in
+    a spawned child process, so ``checkpoint_path`` (a plain string) is what
+    gets reconstructed here -- not a live model passed across the process
+    boundary, which spawn cannot pickle."""
+    try:
+        from ..agents.baselines import RandomPolicy
+        from ..agents.bc_policy import load_bc_policy
+        from ..agents.heuristic import HeuristicConfig, HeuristicPolicy
+        from ..eval.harness import play_match
+
+        rng = random.Random(seed)
+        db = get_card_db()
+        out: dict[str, Any] = {"games": 0, "illegal": 0, "reasons": {}, "error": ""}
+
+        for i in range(games):
+            if random_decks:
+                deck = random_legal_deck(db, rng)
+            else:
+                from ..decks.registry import available_decks, load_deck
+
+                deck = load_deck(rng.choice(available_decks()))
+
+            checked = {"bad": 0}
+
+            def make_network_act():
+                policy = load_bc_policy(checkpoint_path, deck, db)
+                shell = SafetyShell(policy, db, FallbackPolicy(deck), BudgetManager())
+
+                def act(obs):
+                    action = shell.act(obs)
+                    sel = obs.get("select")
+                    if sel:
+                        n = len(sel.get("option") or ())
+                        lo = int(sel.get("minCount") or 0)
+                        hi = int(sel.get("maxCount") or 0)
+                        if any(x < 0 or x >= n for x in action) or not (
+                            min(lo, n) <= len(action) <= max(hi, lo, 0) or n == 0
+                        ):
+                            checked["bad"] += 1
+                    return action
+
+                return act
+
+            def make_opponent_act():
+                if opponent == "heuristic":
+                    pol = HeuristicPolicy(deck, db, HeuristicConfig())
+                else:
+                    pol = RandomPolicy(deck, seed=rng.randint(0, 10**6))
+                shell = SafetyShell(pol, db, FallbackPolicy(deck), BudgetManager())
+                return shell.act
+
+            r = play_match(make_network_act(), make_opponent_act(), deck, deck, seed=seed + i)
+            out["games"] += 1
+            out["illegal"] += checked["bad"]
+            out["reasons"][r.reason] = out["reasons"].get(r.reason, 0) + 1
+        q.put(out)
+    except BaseException as exc:  # noqa: BLE001
+        q.put({"error": f"{type(exc).__name__}: {exc}", "trace": traceback.format_exc(limit=5)})
+
+
+def fuzz_selfplay_checkpoint(
+    checkpoint_path: str,
+    games: int = 60,
+    seed: int = 0,
+    random_decks: bool = True,
+    opponent: str = "random",
+    batch: int = 10,
+    timeout: float = 300.0,
+) -> FuzzReport:
+    """Play real games with a checkpoint-loaded network policy on one seat,
+    recording any native crash, illegal action, or Python exception. Batches
+    are smaller than :func:`fuzz_selfplay`'s default (network forward passes
+    are slower than the heuristic's, and each child process pays MiniLM/model
+    load cost once per batch)."""
+    rep = FuzzReport()
+    ctx = mp.get_context("spawn")
+    done = 0
+    batch_i = 0
+    while done < games:
+        n = min(batch, games - done)
+        q = ctx.Queue()
+        p = ctx.Process(
+            target=_selfplay_checkpoint_worker,
+            args=(checkpoint_path, n, seed + 1000 * batch_i, random_decks, opponent, q),
+        )
         p.start()
         p.join(timeout)
 

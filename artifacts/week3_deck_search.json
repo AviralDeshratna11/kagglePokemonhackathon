@@ -1,0 +1,258 @@
+{
+  "base_deck": "lucario_fighting",
+  "baseline_results": {
+    "crustle": 0.02,
+    "bellibolt_lightning": 0.96,
+    "greedy": 0.98,
+    "first": 0.82
+  },
+  "baseline_worst": [
+    "crustle",
+    0.02
+  ],
+  "best_results": {
+    "crustle": 0.14,
+    "bellibolt_lightning": 0.98,
+    "greedy": 0.94,
+    "first": 0.85
+  },
+  "best_worst": [
+    "crustle",
+    0.14
+  ],
+  "best_deck": [
+    333,
+    333,
+    333,
+    333,
+    678,
+    678,
+    678,
+    678,
+    1086,
+    1086,
+    1086,
+    1086,
+    1121,
+    1121,
+    1121,
+    1121,
+    1145,
+    1145,
+    1145,
+    1142,
+    1142,
+    1142,
+    1141,
+    1141,
+    1227,
+    1227,
+    1227,
+    1227,
+    1224,
+    1224,
+    1224,
+    1182,
+    1182,
+    1072,
+    1122,
+    1097,
+    1097,
+    1123,
+    1123,
+    1262,
+    1215,
+    1125,
+    792,
+    6,
+    6,
+    6,
+    6,
+    6,
+    6,
+    6,
+    6,
+    6,
+    6,
+    6,
+    6,
+    6,
+    6,
+    6,
+    6,
+    6
+  ],
+  "improved": true,
+  "history": [
+    {
+      "round": 0,
+      "n_proposals": 4,
+      "screen_top_worst": 0.04,
+      "confirm_results": {
+        "crustle": 0.03,
+        "bellibolt_lightning": 0.95,
+        "greedy": 0.96,
+        "first": 0.82
+      },
+      "confirm_worst": [
+        "crustle",
+        0.03
+      ],
+      "accepted": true,
+      "seconds": 20.72
+    },
+    {
+      "round": 1,
+      "n_proposals": 4,
+      "screen_top_worst": 0.08,
+      "confirm_results": {
+        "crustle": 0.04,
+        "bellibolt_lightning": 0.97,
+        "greedy": 0.93,
+        "first": 0.79
+      },
+      "confirm_worst": [
+        "crustle",
+        0.04
+      ],
+      "accepted": true,
+      "seconds": 44.23
+    },
+    {
+      "round": 2,
+      "n_proposals": 4,
+      "screen_top_worst": 0.04,
+      "confirm_results": {
+        "crustle": 0.01,
+        "bellibolt_lightning": 0.92,
+        "greedy": 0.96,
+        "first": 0.8
+      },
+      "confirm_worst": [
+        "crustle",
+        0.01
+      ],
+      "accepted": false,
+      "seconds": 70.14
+    },
+    {
+      "round": 3,
+      "n_proposals": 4,
+      "screen_top_worst": 0.04,
+      "confirm_results": {
+        "crustle": 0.03,
+        "bellibolt_lightning": 0.92,
+        "greedy": 0.98,
+        "first": 0.82
+      },
+      "confirm_worst": [
+        "crustle",
+        0.03
+      ],
+      "accepted": false,
+      "seconds": 94.68
+    },
+    {
+      "round": 4,
+      "n_proposals": 4,
+      "screen_top_worst": 0.08,
+      "confirm_results": {
+        "crustle": 0.03,
+        "bellibolt_lightning": 0.95,
+        "greedy": 0.98,
+        "first": 0.9
+      },
+      "confirm_worst": [
+        "crustle",
+        0.03
+      ],
+      "accepted": false,
+      "seconds": 119.63
+    },
+    {
+      "round": 5,
+      "n_proposals": 4,
+      "screen_top_worst": 0.0,
+      "confirm_results": {
+        "crustle": 0.03,
+        "bellibolt_lightning": 0.93,
+        "greedy": 0.98,
+        "first": 0.82
+      },
+      "confirm_worst": [
+        "crustle",
+        0.03
+      ],
+      "accepted": false,
+      "seconds": 143.52
+    },
+    {
+      "round": 6,
+      "n_proposals": 4,
+      "screen_top_worst": 0.04,
+      "confirm_results": {
+        "crustle": 0.0,
+        "bellibolt_lightning": 0.94,
+        "greedy": 0.95,
+        "first": 0.86
+      },
+      "confirm_worst": [
+        "crustle",
+        0.0
+      ],
+      "accepted": false,
+      "seconds": 169.27
+    },
+    {
+      "round": 7,
+      "n_proposals": 4,
+      "screen_top_worst": 0.08,
+      "confirm_results": {
+        "crustle": 0.13,
+        "bellibolt_lightning": 0.94,
+        "greedy": 0.97,
+        "first": 0.86
+      },
+      "confirm_worst": [
+        "crustle",
+        0.13
+      ],
+      "accepted": true,
+      "seconds": 196.53
+    },
+    {
+      "round": 8,
+      "n_proposals": 4,
+      "screen_top_worst": 0.16,
+      "confirm_results": {
+        "crustle": 0.14,
+        "bellibolt_lightning": 0.98,
+        "greedy": 0.94,
+        "first": 0.85
+      },
+      "confirm_worst": [
+        "crustle",
+        0.14
+      ],
+      "accepted": true,
+      "seconds": 221.61
+    },
+    {
+      "round": 9,
+      "n_proposals": 4,
+      "screen_top_worst": 0.16,
+      "confirm_results": {
+        "crustle": 0.1,
+        "bellibolt_lightning": 0.95,
+        "greedy": 0.95,
+        "first": 0.88
+      },
+      "confirm_worst": [
+        "crustle",
+        0.1
+      ],
+      "accepted": false,
+      "seconds": 251.06
+    }
+  ]
+}

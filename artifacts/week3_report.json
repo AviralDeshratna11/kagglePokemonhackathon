@@ -1,0 +1,59 @@
+{
+  "distillation": {
+    "checkpoints": {
+      "teacher_bc_text": {"params": 436055, "file_kb": 3996.2, "offline_val_accuracy": 0.899},
+      "distill_medium": {"params": 133191, "file_kb": 2813.1, "offline_val_accuracy": 0.933, "dims": {"card_embed_dim": 64, "card_struct_hidden": 16, "card_text_hidden": 32, "zone_hidden": 32, "hist_hidden": 16, "trunk_dim": 128, "option_hidden": 48}},
+      "distill_small": {"params": 46271, "file_kb": 2473.2, "offline_val_accuracy": 0.922, "dims": {"card_embed_dim": 32, "card_struct_hidden": 8, "card_text_hidden": 16, "zone_hidden": 16, "hist_hidden": 8, "trunk_dim": 64, "option_hidden": 24}}
+    },
+    "note_on_file_size": "Params shrink 9.4x (small vs teacher) but file size only shrinks ~1.6x, because every checkpoint bakes in the same frozen per-card MiniLM/structured embedding table regardless of model width.",
+    "latency_ms_per_decision": {"teacher_bc_text": 8.845, "distill_medium": 8.775, "distill_small": 8.314},
+    "note_on_latency": "Distillation did not meaningfully reduce measured per-move latency at these sizes -- fixed overhead (candidate feature encoding, Python/ctypes call, card lookups) dominates the tiny MLP forward pass, not the network's own arithmetic.",
+    "real_gameplay_bench": {
+      "games_per_pair": 150,
+      "duels": {
+        "teacher_vs_heuristic": {"a_winrate": 0.4667, "ci95": [0.3887, 0.5463]},
+        "teacher_vs_distill_medium": {"a_winrate": 0.54, "ci95": [0.4602, 0.6178]},
+        "teacher_vs_distill_small": {"a_winrate": 0.4667, "ci95": [0.3887, 0.5463]},
+        "distill_medium_vs_distill_small": {"a_winrate": 0.4067, "ci95": [0.3313, 0.4867], "note": "significant: distill_small beats distill_medium ~59.3% of the time, CI excludes 50%"},
+        "distill_medium_vs_heuristic": {"a_winrate": 0.4467, "ci95": [0.3694, 0.5266]},
+        "distill_small_vs_heuristic": {"a_winrate": 0.5133, "ci95": [0.434, 0.592]}
+      },
+      "worst_case_winrate_across_full_panel": {"teacher_bc_text": 0.4667, "distill_medium": 0.4067, "distill_small": 0.5133, "heuristic": 0.4867}
+    },
+    "conclusion": "distill_small is the real efficiency winner: 9.4x fewer parameters than the teacher, a statistical tie with the teacher in real gameplay (all CIs cross 50%), and the best real-game worst-case floor of all three network variants (51.3%) -- better than distill_medium's 40.7% despite distill_medium having higher offline validation accuracy (93.3% vs 92.2%). Offline BC accuracy against the teacher's soft-label distribution did not predict real self-play strength here."
+  },
+  "fuzzing": {
+    "standard": "Week 0's full standard: 20,000 hostile observations + 150 self-play games, each policy through the real SafetyShell, native-crash containment via a spawned child process.",
+    "results": {
+      "bc_text": {"observation_fuzz": {"cases": 20000, "ok": true, "illegal_actions": 0}, "selfplay_fuzz": {"cases": 150, "ok": true, "illegal_actions": 0}},
+      "distill_medium": {"observation_fuzz": {"cases": 20000, "ok": true, "illegal_actions": 0}, "selfplay_fuzz": {"cases": 150, "ok": true, "illegal_actions": 0}},
+      "distill_small": {"observation_fuzz": {"cases": 20000, "ok": true, "illegal_actions": 0}, "selfplay_fuzz": {"cases": 150, "ok": true, "illegal_actions": 0}}
+    },
+    "conclusion": "All three network policies now proven at the same zero-crash, zero-illegal-action standard Week 0 established for the heuristic. This guarantee does not transfer automatically between policies (different code paths, different failure surfaces) -- each was verified independently."
+  },
+  "router": {
+    "games_per_pair": 150,
+    "duels": {
+      "router_vs_network_only": {"a_winrate": 0.54, "ci95": [0.4602, 0.6178]},
+      "router_vs_heuristic_only": {"a_winrate": 0.5133, "ci95": [0.434, 0.592]}
+    },
+    "worst_case_winrate_across_full_panel": {"router": 0.5133, "network_only": 0.46, "heuristic_only": 0.4867},
+    "safety": "Zero policy/fallback exceptions, zero sanitised actions through SafetyShell across a real full game (test_week3.py::test_full_game_completes_without_incident); 48 network routes / 7 heuristic routes observed in that game, confirming both branches actually fire.",
+    "conclusion": "Modest, honest result: the router posts the best worst-case floor of the three (51.3% vs 46.0% network-only vs 48.7% heuristic-only), and never loses on net to either constituent alone -- but neither pairwise matchup is a statistically decisive win at this sample size (both CIs cross 50%). Confidence gating is directionally beneficial and safe, not a proven strength upgrade."
+  },
+  "deck_search": {
+    "method": "10-round bounded local search (greedy hill-climbing over legal single-card swaps), screened at 25 games/candidate, confirmed at 100 games/candidate, fitness = worst-case win rate across a panel including a real Crustle (id 345) ex-counter wall deck built from the live card pool.",
+    "baseline_lucario_fighting_vs_crustle_winrate": 0.02,
+    "best_found_vs_crustle_winrate": 0.14,
+    "swap_found": {
+      "removed": ["1x Basic Fighting Energy (18 -> 17)", "2x Energy Retrieval -> 0x", "2x Pokegear 3.0 -> 1x"],
+      "added": ["1x Darumaka", "1x Snorlax", "1x Surfing Beach", "1x Ethan's Adventure"]
+    },
+    "other_matchups_after_swap": {"bellibolt_lightning": 0.98, "greedy": 0.94, "first": 0.85},
+    "conclusion": "Real, honest finding, not fully fixable within this search's scope: the vulnerability is structural, not a tech deck-list problem. lucario_fighting's entire win condition is an ex/Mega-ex attacker line, and Crustle's ability blocks all damage from opponent's ex Pokemon outright -- a bounded swap search (which never touches the protected key attacker cards, by design) found a 7x improvement (2%->14%) but cannot solve a hard counter to its own core game plan. A full MAP-Elites/Double-Oracle population search, explicitly out of scope for this pass, would be needed to explore decks with a fundamentally different win condition."
+  },
+  "tests": {
+    "suites": ["test_week0.py", "test_week1.py", "test_week2.py", "test_week3.py"],
+    "result": "90 passed, 0 failed"
+  }
+}

@@ -1,0 +1,556 @@
+{
+  "ladder": [
+    {
+      "agent": "first",
+      "mu": 482.4,
+      "sigma": 26.4,
+      "score": 403.2
+    },
+    {
+      "agent": "heuristic",
+      "mu": 352.7,
+      "sigma": 34.7,
+      "score": 248.5
+    },
+    {
+      "agent": "random",
+      "mu": 323.7,
+      "sigma": 26.4,
+      "score": 244.5
+    },
+    {
+      "agent": "frozen-teacher",
+      "mu": 198.8,
+      "sigma": 32.2,
+      "score": 102.4
+    },
+    {
+      "agent": "selfplay-r3",
+      "mu": 126.3,
+      "sigma": 30.8,
+      "score": 33.8
+    },
+    {
+      "agent": "greedy",
+      "mu": 53.9,
+      "sigma": 22.6,
+      "score": -13.9
+    },
+    {
+      "agent": "selfplay-r5",
+      "mu": 41.8,
+      "sigma": 27.5,
+      "score": -40.7
+    }
+  ],
+  "matrix": {
+    "selfplay-r5": {
+      "selfplay-r3": 0.5056,
+      "frozen-teacher": 0.4778,
+      "heuristic": 0.4722,
+      "greedy": 0.9778,
+      "first": 0.8389,
+      "random": 0.9833
+    },
+    "selfplay-r3": {
+      "selfplay-r5": 0.4944,
+      "frozen-teacher": 0.4611,
+      "heuristic": 0.4667,
+      "greedy": 0.9556,
+      "first": 0.8778,
+      "random": 0.9889
+    },
+    "frozen-teacher": {
+      "selfplay-r5": 0.5222,
+      "selfplay-r3": 0.5389,
+      "heuristic": 0.5,
+      "greedy": 0.9167,
+      "first": 0.8611,
+      "random": 0.9889
+    },
+    "heuristic": {
+      "selfplay-r5": 0.5278,
+      "selfplay-r3": 0.5333,
+      "frozen-teacher": 0.5,
+      "greedy": 0.9444,
+      "first": 0.8556,
+      "random": 0.9944
+    },
+    "greedy": {
+      "selfplay-r5": 0.0222,
+      "selfplay-r3": 0.0444,
+      "frozen-teacher": 0.0833,
+      "heuristic": 0.0556,
+      "first": 0.1056,
+      "random": 0.4222
+    },
+    "first": {
+      "selfplay-r5": 0.1611,
+      "selfplay-r3": 0.1222,
+      "frozen-teacher": 0.1389,
+      "heuristic": 0.1444,
+      "greedy": 0.8944,
+      "random": 0.9556
+    },
+    "random": {
+      "selfplay-r5": 0.0167,
+      "selfplay-r3": 0.0111,
+      "frozen-teacher": 0.0111,
+      "heuristic": 0.0056,
+      "greedy": 0.5778,
+      "first": 0.0444
+    }
+  },
+  "worst_case": {
+    "selfplay-r5": 0.4722,
+    "selfplay-r3": 0.4611,
+    "frozen-teacher": 0.5,
+    "heuristic": 0.5,
+    "greedy": 0.0222,
+    "first": 0.1222,
+    "random": 0.0056
+  },
+  "duels": [
+    {
+      "a": "selfplay-r5",
+      "b": "selfplay-r3",
+      "games": 180,
+      "a_winrate": 0.5056,
+      "ci95": [
+        0.4332,
+        0.5777
+      ],
+      "a_winrate_going_first": 0.5,
+      "a_winrate_going_second": 0.5111,
+      "draws": 0,
+      "mean_turns": 9.41,
+      "a_max_decision_ms": 31.0,
+      "b_max_decision_ms": 32.0,
+      "a_mean_game_seconds": 0.3564,
+      "reasons": {
+        "engine_result": 180
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "selfplay-r5",
+      "b": "frozen-teacher",
+      "games": 180,
+      "a_winrate": 0.4778,
+      "ci95": [
+        0.406,
+        0.5504
+      ],
+      "a_winrate_going_first": 0.5222,
+      "a_winrate_going_second": 0.4333,
+      "draws": 0,
+      "mean_turns": 9.32,
+      "a_max_decision_ms": 47.0,
+      "b_max_decision_ms": 31.0,
+      "a_mean_game_seconds": 0.3612,
+      "reasons": {
+        "engine_result": 180
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "selfplay-r5",
+      "b": "heuristic",
+      "games": 180,
+      "a_winrate": 0.4722,
+      "ci95": [
+        0.4006,
+        0.545
+      ],
+      "a_winrate_going_first": 0.5778,
+      "a_winrate_going_second": 0.3667,
+      "draws": 0,
+      "mean_turns": 9.74,
+      "a_max_decision_ms": 31.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.3888,
+      "reasons": {
+        "engine_result": 180
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "selfplay-r5",
+      "b": "greedy",
+      "games": 180,
+      "a_winrate": 0.9778,
+      "ci95": [
+        0.9443,
+        0.9913
+      ],
+      "a_winrate_going_first": 1.0,
+      "a_winrate_going_second": 0.9556,
+      "draws": 0,
+      "mean_turns": 6.43,
+      "a_max_decision_ms": 31.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.2518,
+      "reasons": {
+        "engine_result": 180
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "selfplay-r5",
+      "b": "first",
+      "games": 180,
+      "a_winrate": 0.8389,
+      "ci95": [
+        0.7782,
+        0.8854
+      ],
+      "a_winrate_going_first": 0.9667,
+      "a_winrate_going_second": 0.7111,
+      "draws": 0,
+      "mean_turns": 9.19,
+      "a_max_decision_ms": 47.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.3622,
+      "reasons": {
+        "engine_result": 180
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "selfplay-r5",
+      "b": "random",
+      "games": 180,
+      "a_winrate": 0.9833,
+      "ci95": [
+        0.9522,
+        0.9943
+      ],
+      "a_winrate_going_first": 0.9778,
+      "a_winrate_going_second": 0.9889,
+      "draws": 0,
+      "mean_turns": 5.47,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.2068,
+      "reasons": {
+        "engine_result": 180
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "selfplay-r3",
+      "b": "frozen-teacher",
+      "games": 180,
+      "a_winrate": 0.4611,
+      "ci95": [
+        0.3899,
+        0.534
+      ],
+      "a_winrate_going_first": 0.5333,
+      "a_winrate_going_second": 0.3889,
+      "draws": 0,
+      "mean_turns": 9.37,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 32.0,
+      "a_mean_game_seconds": 0.3647,
+      "reasons": {
+        "engine_result": 180
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "selfplay-r3",
+      "b": "heuristic",
+      "games": 180,
+      "a_winrate": 0.4667,
+      "ci95": [
+        0.3952,
+        0.5395
+      ],
+      "a_winrate_going_first": 0.5,
+      "a_winrate_going_second": 0.4333,
+      "draws": 0,
+      "mean_turns": 10,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.4,
+      "reasons": {
+        "engine_result": 180
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "selfplay-r3",
+      "b": "greedy",
+      "games": 180,
+      "a_winrate": 0.9556,
+      "ci95": [
+        0.9148,
+        0.9773
+      ],
+      "a_winrate_going_first": 0.9889,
+      "a_winrate_going_second": 0.9222,
+      "draws": 0,
+      "mean_turns": 6.16,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.2225,
+      "reasons": {
+        "engine_result": 180
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "selfplay-r3",
+      "b": "first",
+      "games": 180,
+      "a_winrate": 0.8778,
+      "ci95": [
+        0.8219,
+        0.9179
+      ],
+      "a_winrate_going_first": 0.9556,
+      "a_winrate_going_second": 0.8,
+      "draws": 0,
+      "mean_turns": 9.96,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.3797,
+      "reasons": {
+        "engine_result": 180
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "selfplay-r3",
+      "b": "random",
+      "games": 180,
+      "a_winrate": 0.9889,
+      "ci95": [
+        0.9604,
+        0.9969
+      ],
+      "a_winrate_going_first": 1.0,
+      "a_winrate_going_second": 0.9778,
+      "draws": 0,
+      "mean_turns": 5.62,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.2046,
+      "reasons": {
+        "engine_result": 180
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "frozen-teacher",
+      "b": "heuristic",
+      "games": 180,
+      "a_winrate": 0.5,
+      "ci95": [
+        0.4277,
+        0.5723
+      ],
+      "a_winrate_going_first": 0.5222,
+      "a_winrate_going_second": 0.4778,
+      "draws": 0,
+      "mean_turns": 9.41,
+      "a_max_decision_ms": 78.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.3908,
+      "reasons": {
+        "engine_result": 180
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "frozen-teacher",
+      "b": "greedy",
+      "games": 180,
+      "a_winrate": 0.9167,
+      "ci95": [
+        0.8671,
+        0.9489
+      ],
+      "a_winrate_going_first": 0.9778,
+      "a_winrate_going_second": 0.8556,
+      "draws": 0,
+      "mean_turns": 6.01,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.217,
+      "reasons": {
+        "engine_result": 180
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "frozen-teacher",
+      "b": "first",
+      "games": 180,
+      "a_winrate": 0.8611,
+      "ci95": [
+        0.803,
+        0.9041
+      ],
+      "a_winrate_going_first": 0.9,
+      "a_winrate_going_second": 0.8222,
+      "draws": 0,
+      "mean_turns": 10.39,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.3601,
+      "reasons": {
+        "engine_result": 180
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "frozen-teacher",
+      "b": "random",
+      "games": 180,
+      "a_winrate": 0.9889,
+      "ci95": [
+        0.9604,
+        0.9969
+      ],
+      "a_winrate_going_first": 0.9889,
+      "a_winrate_going_second": 0.9889,
+      "draws": 0,
+      "mean_turns": 6.18,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.2068,
+      "reasons": {
+        "engine_result": 180
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "heuristic",
+      "b": "greedy",
+      "games": 180,
+      "a_winrate": 0.9444,
+      "ci95": [
+        0.9008,
+        0.9695
+      ],
+      "a_winrate_going_first": 0.9556,
+      "a_winrate_going_second": 0.9333,
+      "draws": 0,
+      "mean_turns": 6.78,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.0049,
+      "reasons": {
+        "engine_result": 180
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "heuristic",
+      "b": "first",
+      "games": 180,
+      "a_winrate": 0.8556,
+      "ci95": [
+        0.7968,
+        0.8995
+      ],
+      "a_winrate_going_first": 0.8889,
+      "a_winrate_going_second": 0.8222,
+      "draws": 0,
+      "mean_turns": 10.03,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.0062,
+      "reasons": {
+        "engine_result": 180
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "heuristic",
+      "b": "random",
+      "games": 180,
+      "a_winrate": 0.9944,
+      "ci95": [
+        0.9692,
+        0.999
+      ],
+      "a_winrate_going_first": 1.0,
+      "a_winrate_going_second": 0.9889,
+      "draws": 0,
+      "mean_turns": 5.48,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.003,
+      "reasons": {
+        "engine_result": 180
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "greedy",
+      "b": "first",
+      "games": 180,
+      "a_winrate": 0.1056,
+      "ci95": [
+        0.0686,
+        0.159
+      ],
+      "a_winrate_going_first": 0.1889,
+      "a_winrate_going_second": 0.0222,
+      "draws": 0,
+      "mean_turns": 7.83,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.0022,
+      "reasons": {
+        "engine_result": 180
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "greedy",
+      "b": "random",
+      "games": 180,
+      "a_winrate": 0.4222,
+      "ci95": [
+        0.3524,
+        0.4953
+      ],
+      "a_winrate_going_first": 0.5778,
+      "a_winrate_going_second": 0.2667,
+      "draws": 0,
+      "mean_turns": 12.13,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.0024,
+      "reasons": {
+        "engine_result": 180
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "first",
+      "b": "random",
+      "games": 180,
+      "a_winrate": 0.9556,
+      "ci95": [
+        0.9148,
+        0.9773
+      ],
+      "a_winrate_going_first": 0.9778,
+      "a_winrate_going_second": 0.9333,
+      "draws": 0,
+      "mean_turns": 7.37,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.0023,
+      "reasons": {
+        "engine_result": 180
+      },
+      "invalid_by_player": {}
+    }
+  ]
+}

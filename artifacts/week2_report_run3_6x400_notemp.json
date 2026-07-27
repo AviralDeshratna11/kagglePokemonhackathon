@@ -1,0 +1,575 @@
+{
+  "deck": "lucario_fighting",
+  "rounds": 6,
+  "games_per_round": 400,
+  "history": [
+    {
+      "round": 0,
+      "generation": {
+        "games": 400,
+        "total_records": 14127,
+        "seconds": 206.25,
+        "opponent_counts": {
+          "frozen-teacher": 161,
+          "heuristic": 175,
+          "greedy": 24,
+          "first": 24,
+          "random": 16
+        },
+        "opponent_results": {
+          "frozen-teacher": {
+            "win": 80,
+            "loss": 81,
+            "draw": 0
+          },
+          "heuristic": {
+            "win": 73,
+            "loss": 102,
+            "draw": 0
+          },
+          "greedy": {
+            "win": 22,
+            "loss": 2,
+            "draw": 0
+          },
+          "first": {
+            "win": 20,
+            "loss": 4,
+            "draw": 0
+          },
+          "random": {
+            "win": 16,
+            "loss": 0,
+            "draw": 0
+          }
+        },
+        "reasons": {
+          "engine_result": 400
+        },
+        "out_dir": "artifacts\\selfplay_v2\\round_0"
+      },
+      "training": {
+        "epochs": [
+          {
+            "epoch": 0,
+            "policy_loss": -0.005584196250382321,
+            "value_loss": 0.6114156841767638,
+            "kl_loss": 0.009326373550560896,
+            "belief_loss": 1.9887840410297215,
+            "mean_grad_norm_pre_clip": 2.028432740572448
+          },
+          {
+            "epoch": 1,
+            "policy_loss": -0.02059537214268883,
+            "value_loss": 0.587013400422883,
+            "kl_loss": 0.015629352192945766,
+            "belief_loss": 1.9603881495701176,
+            "mean_grad_norm_pre_clip": 2.155387265216252
+          }
+        ]
+      },
+      "win_rate": {
+        "frozen-teacher": 0.7020624626444493,
+        "heuristic": 0.5201987553477949,
+        "greedy": 0.8936950906020389,
+        "first": 0.985833237460211,
+        "random": 0.9949887021211907
+      },
+      "worst_case": [
+        "heuristic",
+        0.5201987553477949
+      ],
+      "checkpoint": "artifacts\\selfplay_v2\\checkpoint_round_0.pt"
+    },
+    {
+      "round": 1,
+      "generation": {
+        "games": 400,
+        "total_records": 14041,
+        "seconds": 226.65,
+        "opponent_counts": {
+          "frozen-teacher": 81,
+          "past-self-0": 131,
+          "random": 6,
+          "heuristic": 146,
+          "greedy": 18,
+          "first": 18
+        },
+        "opponent_results": {
+          "frozen-teacher": {
+            "win": 48,
+            "loss": 33,
+            "draw": 0
+          },
+          "past-self-0": {
+            "win": 63,
+            "loss": 68,
+            "draw": 0
+          },
+          "random": {
+            "win": 6,
+            "loss": 0,
+            "draw": 0
+          },
+          "heuristic": {
+            "win": 64,
+            "loss": 82,
+            "draw": 0
+          },
+          "greedy": {
+            "win": 17,
+            "loss": 1,
+            "draw": 0
+          },
+          "first": {
+            "win": 13,
+            "loss": 5,
+            "draw": 0
+          }
+        },
+        "reasons": {
+          "engine_result": 400
+        },
+        "out_dir": "artifacts\\selfplay_v2\\round_1"
+      },
+      "training": {
+        "epochs": [
+          {
+            "epoch": 0,
+            "policy_loss": -0.007655303048176781,
+            "value_loss": 0.5988363831498954,
+            "kl_loss": 0.014226793487696732,
+            "belief_loss": 1.982645098677551,
+            "mean_grad_norm_pre_clip": 2.131497042790559
+          },
+          {
+            "epoch": 1,
+            "policy_loss": -0.012598109028921868,
+            "value_loss": 0.5831190283682427,
+            "kl_loss": 0.017379010135008487,
+            "belief_loss": 1.9658333530686045,
+            "mean_grad_norm_pre_clip": 2.178885336797097
+          }
+        ]
+      },
+      "win_rate": {
+        "frozen-teacher": 0.5638873327281541,
+        "heuristic": 0.3250096985333226,
+        "greedy": 0.9888418997291292,
+        "first": 0.6260972456356,
+        "random": 0.9991080966421748,
+        "past-self-0": 0.5383766079421181
+      },
+      "worst_case": [
+        "heuristic",
+        0.3250096985333226
+      ],
+      "checkpoint": "artifacts\\selfplay_v2\\checkpoint_round_1.pt"
+    },
+    {
+      "round": 2,
+      "generation": {
+        "games": 400,
+        "total_records": 14634,
+        "seconds": 268.14,
+        "opponent_counts": {
+          "heuristic": 84,
+          "past-self-1": 94,
+          "past-self-0": 99,
+          "first": 11,
+          "frozen-teacher": 106,
+          "greedy": 4,
+          "random": 2
+        },
+        "opponent_results": {
+          "heuristic": {
+            "win": 39,
+            "loss": 45,
+            "draw": 0
+          },
+          "past-self-1": {
+            "win": 51,
+            "loss": 43,
+            "draw": 0
+          },
+          "past-self-0": {
+            "win": 47,
+            "loss": 52,
+            "draw": 0
+          },
+          "first": {
+            "win": 10,
+            "loss": 1,
+            "draw": 0
+          },
+          "frozen-teacher": {
+            "win": 50,
+            "loss": 56,
+            "draw": 0
+          },
+          "greedy": {
+            "win": 4,
+            "loss": 0,
+            "draw": 0
+          },
+          "random": {
+            "win": 2,
+            "loss": 0,
+            "draw": 0
+          }
+        },
+        "reasons": {
+          "engine_result": 400
+        },
+        "out_dir": "artifacts\\selfplay_v2\\round_2"
+      },
+      "training": {
+        "epochs": [
+          {
+            "epoch": 0,
+            "policy_loss": -0.010281117038315567,
+            "value_loss": 0.5925632231308252,
+            "kl_loss": 0.017160069662881763,
+            "belief_loss": 1.968828749820443,
+            "mean_grad_norm_pre_clip": 2.3643197308778263
+          },
+          {
+            "epoch": 1,
+            "policy_loss": -0.015611522431312546,
+            "value_loss": 0.582751915892799,
+            "kl_loss": 0.018213684678068647,
+            "belief_loss": 1.9559829103172977,
+            "mean_grad_norm_pre_clip": 2.4563164737680117
+          }
+        ]
+      },
+      "win_rate": {
+        "frozen-teacher": 0.4151372188312552,
+        "heuristic": 0.5737059693359259,
+        "greedy": 0.9964695073361698,
+        "first": 0.9654369947368168,
+        "random": 0.9994983043612233,
+        "past-self-0": 0.725390391525427,
+        "past-self-1": 0.6034965776851134
+      },
+      "worst_case": [
+        "frozen-teacher",
+        0.4151372188312552
+      ],
+      "checkpoint": "artifacts\\selfplay_v2\\checkpoint_round_2.pt"
+    },
+    {
+      "round": 3,
+      "generation": {
+        "games": 400,
+        "total_records": 14764,
+        "seconds": 273.78,
+        "opponent_counts": {
+          "heuristic": 76,
+          "past-self-2": 77,
+          "greedy": 2,
+          "frozen-teacher": 85,
+          "past-self-1": 72,
+          "past-self-0": 82,
+          "first": 5,
+          "random": 1
+        },
+        "opponent_results": {
+          "heuristic": {
+            "win": 31,
+            "loss": 45,
+            "draw": 0
+          },
+          "past-self-2": {
+            "win": 41,
+            "loss": 36,
+            "draw": 0
+          },
+          "greedy": {
+            "win": 2,
+            "loss": 0,
+            "draw": 0
+          },
+          "frozen-teacher": {
+            "win": 37,
+            "loss": 48,
+            "draw": 0
+          },
+          "past-self-1": {
+            "win": 35,
+            "loss": 37,
+            "draw": 0
+          },
+          "past-self-0": {
+            "win": 35,
+            "loss": 47,
+            "draw": 0
+          },
+          "first": {
+            "win": 5,
+            "loss": 0,
+            "draw": 0
+          },
+          "random": {
+            "win": 1,
+            "loss": 0,
+            "draw": 0
+          }
+        },
+        "reasons": {
+          "engine_result": 400
+        },
+        "out_dir": "artifacts\\selfplay_v2\\round_3"
+      },
+      "training": {
+        "epochs": [
+          {
+            "epoch": 0,
+            "policy_loss": -0.01364980625071573,
+            "value_loss": 0.5820945377616245,
+            "kl_loss": 0.018610862483532328,
+            "belief_loss": 1.9537547102142805,
+            "mean_grad_norm_pre_clip": 2.3753328866335384
+          },
+          {
+            "epoch": 1,
+            "policy_loss": -0.01791401770324011,
+            "value_loss": 0.5727766371718027,
+            "kl_loss": 0.02064365293282252,
+            "belief_loss": 1.9430170954754415,
+            "mean_grad_norm_pre_clip": 2.4340722889067403
+          }
+        ]
+      },
+      "win_rate": {
+        "frozen-teacher": 0.5129092100263346,
+        "heuristic": 0.3006445918099915,
+        "greedy": 0.9980140978765955,
+        "first": 0.9917980368369594,
+        "random": 0.9996237282709175,
+        "past-self-0": 0.20188375765899513,
+        "past-self-1": 0.7472777423880868,
+        "past-self-2": 0.4957298664931748
+      },
+      "worst_case": [
+        "past-self-0",
+        0.20188375765899513
+      ],
+      "checkpoint": "artifacts\\selfplay_v2\\checkpoint_round_3.pt"
+    },
+    {
+      "round": 4,
+      "generation": {
+        "games": 400,
+        "total_records": 14586,
+        "seconds": 264.6,
+        "opponent_counts": {
+          "past-self-0": 20,
+          "heuristic": 97,
+          "past-self-2": 64,
+          "frozen-teacher": 79,
+          "past-self-3": 52,
+          "past-self-1": 78,
+          "first": 9,
+          "random": 1
+        },
+        "opponent_results": {
+          "past-self-0": {
+            "win": 13,
+            "loss": 7,
+            "draw": 0
+          },
+          "heuristic": {
+            "win": 42,
+            "loss": 55,
+            "draw": 0
+          },
+          "past-self-2": {
+            "win": 34,
+            "loss": 30,
+            "draw": 0
+          },
+          "frozen-teacher": {
+            "win": 37,
+            "loss": 42,
+            "draw": 0
+          },
+          "past-self-3": {
+            "win": 30,
+            "loss": 22,
+            "draw": 0
+          },
+          "past-self-1": {
+            "win": 39,
+            "loss": 39,
+            "draw": 0
+          },
+          "first": {
+            "win": 8,
+            "loss": 1,
+            "draw": 0
+          },
+          "random": {
+            "win": 1,
+            "loss": 0,
+            "draw": 0
+          }
+        },
+        "reasons": {
+          "engine_result": 400
+        },
+        "out_dir": "artifacts\\selfplay_v2\\round_4"
+      },
+      "training": {
+        "epochs": [
+          {
+            "epoch": 0,
+            "policy_loss": -0.005788548111607421,
+            "value_loss": 0.5723962670120377,
+            "kl_loss": 0.0181368148815768,
+            "belief_loss": 1.954665884762065,
+            "mean_grad_norm_pre_clip": 2.2794440194441807
+          },
+          {
+            "epoch": 1,
+            "policy_loss": -0.00918321311436128,
+            "value_loss": 0.5603312943249825,
+            "kl_loss": 0.016632430143959303,
+            "belief_loss": 1.9421260332722234,
+            "mean_grad_norm_pre_clip": 2.303462836883131
+          }
+        ]
+      },
+      "win_rate": {
+        "frozen-teacher": 0.6289805326361143,
+        "heuristic": 0.4197588592951249,
+        "greedy": 0.9980140978765955,
+        "first": 0.9548895292627788,
+        "random": 0.9997177962031881,
+        "past-self-0": 0.6519338364169204,
+        "past-self-1": 0.587725037987775,
+        "past-self-2": 0.893672400143803,
+        "past-self-3": 0.6352953759108692
+      },
+      "worst_case": [
+        "heuristic",
+        0.4197588592951249
+      ],
+      "checkpoint": "artifacts\\selfplay_v2\\checkpoint_round_4.pt"
+    },
+    {
+      "round": 5,
+      "generation": {
+        "games": 400,
+        "total_records": 14614,
+        "seconds": 276.32,
+        "opponent_counts": {
+          "past-self-0": 63,
+          "heuristic": 46,
+          "past-self-4": 66,
+          "past-self-1": 59,
+          "frozen-teacher": 28,
+          "past-self-3": 65,
+          "past-self-2": 53,
+          "first": 11,
+          "greedy": 6,
+          "random": 3
+        },
+        "opponent_results": {
+          "past-self-0": {
+            "win": 32,
+            "loss": 31,
+            "draw": 0
+          },
+          "heuristic": {
+            "win": 19,
+            "loss": 27,
+            "draw": 0
+          },
+          "past-self-4": {
+            "win": 31,
+            "loss": 35,
+            "draw": 0
+          },
+          "past-self-1": {
+            "win": 27,
+            "loss": 32,
+            "draw": 0
+          },
+          "frozen-teacher": {
+            "win": 17,
+            "loss": 11,
+            "draw": 0
+          },
+          "past-self-3": {
+            "win": 31,
+            "loss": 34,
+            "draw": 0
+          },
+          "past-self-2": {
+            "win": 23,
+            "loss": 30,
+            "draw": 0
+          },
+          "first": {
+            "win": 9,
+            "loss": 2,
+            "draw": 0
+          },
+          "greedy": {
+            "win": 6,
+            "loss": 0,
+            "draw": 0
+          },
+          "random": {
+            "win": 3,
+            "loss": 0,
+            "draw": 0
+          }
+        },
+        "reasons": {
+          "engine_result": 400
+        },
+        "out_dir": "artifacts\\selfplay_v2\\round_5"
+      },
+      "training": {
+        "epochs": [
+          {
+            "epoch": 0,
+            "policy_loss": -0.007792511673462937,
+            "value_loss": 0.5709674583856121,
+            "kl_loss": 0.015748941297498414,
+            "belief_loss": 1.94276529439273,
+            "mean_grad_norm_pre_clip": 2.238422111137039
+          },
+          {
+            "epoch": 1,
+            "policy_loss": -0.011689546543377786,
+            "value_loss": 0.5586821403681302,
+            "kl_loss": 0.014904574302357216,
+            "belief_loss": 1.9307008440850386,
+            "mean_grad_norm_pre_clip": 2.1786896205769493
+          }
+        ]
+      },
+      "win_rate": {
+        "frozen-teacher": 0.9146966414793836,
+        "heuristic": 0.8028985207598924,
+        "greedy": 0.9996465520879,
+        "first": 0.9652452028847488,
+        "random": 0.99988094527322,
+        "past-self-0": 0.7916036480776494,
+        "past-self-1": 0.4266110440709182,
+        "past-self-2": 0.6531895382942576,
+        "past-self-3": 0.5835958716392441,
+        "past-self-4": 0.6606049292668852
+      },
+      "worst_case": [
+        "past-self-1",
+        0.4266110440709182
+      ],
+      "checkpoint": "artifacts\\selfplay_v2\\checkpoint_round_5.pt"
+    }
+  ],
+  "final_checkpoint": "artifacts\\selfplay_v2\\checkpoint_round_5.pt"
+}

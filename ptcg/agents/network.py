@@ -247,20 +247,28 @@ class CardEmbedder(nn.Module):
     ``CARD_EMBED_DIM``. ``mode="text"`` and ``mode="onehot"`` are the two H1
     arms; everything downstream is identical either way."""
 
-    def __init__(self, mode: str, n_cards: int) -> None:
+    def __init__(
+        self,
+        mode: str,
+        n_cards: int,
+        embed_dim: int = CARD_EMBED_DIM,
+        struct_hidden: int = CARD_STRUCT_HIDDEN,
+        text_hidden: int = CARD_TEXT_HIDDEN,
+    ) -> None:
         super().__init__()
         if mode not in ("text", "onehot"):
             raise ValueError(mode)
         self.mode = mode
-        self.struct_proj = nn.Linear(STRUCT_DIM, CARD_STRUCT_HIDDEN)
+        self.embed_dim = embed_dim
+        self.struct_proj = nn.Linear(STRUCT_DIM, struct_hidden)
         if mode == "text":
-            self.text_proj = nn.Linear(TEXT_DIM, CARD_TEXT_HIDDEN)
+            self.text_proj = nn.Linear(TEXT_DIM, text_hidden)
             self.id_embed = None
         else:
             self.text_proj = None
             # +1 for the "unknown card" row.
-            self.id_embed = nn.Embedding(n_cards + 1, CARD_TEXT_HIDDEN)
-        self.out = nn.Linear(CARD_STRUCT_HIDDEN + CARD_TEXT_HIDDEN, CARD_EMBED_DIM)
+            self.id_embed = nn.Embedding(n_cards + 1, text_hidden)
+        self.out = nn.Linear(struct_hidden + text_hidden, embed_dim)
 
     def forward(self, struct: torch.Tensor, text: torch.Tensor | None, idx: torch.Tensor | None) -> torch.Tensor:
         s = F.relu(self.struct_proj(struct))
@@ -335,19 +343,20 @@ class PolicyHead(nn.Module):
     option's (feature-vector + its referenced card's embedding) is a key/value
     of one "token"; output is one logit per option."""
 
-    def __init__(self, trunk_dim: int = TRUNK_DIM) -> None:
+    def __init__(self, trunk_dim: int = TRUNK_DIM, card_embed_dim: int = CARD_EMBED_DIM, option_hidden: int = OPTION_HIDDEN) -> None:
         super().__init__()
-        opt_in = FEATURE_DIM + CARD_EMBED_DIM
+        self.option_hidden = option_hidden
+        opt_in = FEATURE_DIM + card_embed_dim
         self.option_proj = nn.Sequential(
-            nn.Linear(opt_in, OPTION_HIDDEN), nn.ReLU(), nn.Linear(OPTION_HIDDEN, OPTION_HIDDEN)
+            nn.Linear(opt_in, option_hidden), nn.ReLU(), nn.Linear(option_hidden, option_hidden)
         )
-        self.query_proj = nn.Linear(trunk_dim, OPTION_HIDDEN)
+        self.query_proj = nn.Linear(trunk_dim, option_hidden)
 
     def forward(self, trunk: torch.Tensor, option_features: torch.Tensor, option_mask: torch.Tensor) -> torch.Tensor:
         # trunk: (b, trunk_dim); option_features: (b, k, opt_in); option_mask: (b, k) bool
         opt = self.option_proj(option_features)  # (b, k, hidden)
         q = self.query_proj(trunk).unsqueeze(1)  # (b, 1, hidden)
-        logits = (opt @ q.transpose(-2, -1)).squeeze(-1) / math.sqrt(OPTION_HIDDEN)  # (b, k)
+        logits = (opt @ q.transpose(-2, -1)).squeeze(-1) / math.sqrt(self.option_hidden)  # (b, k)
         logits = logits.masked_fill(~option_mask, -1e9)
         return logits
 
@@ -389,26 +398,48 @@ class BeliefHead(nn.Module):
 
 
 class BeliefSetDMCLite(nn.Module):
-    def __init__(self, card_mode: str, n_cards: int) -> None:
+    """``dims``, if given, overrides the module-level default widths --
+    this is what lets ``ptcg/train/distill.py`` build genuinely smaller
+    variants of the exact same architecture (not a different architecture)
+    for the efficiency/quality frontier comparison. Omitting it reproduces
+    the original Week-1 sizing exactly, so every existing checkpoint still
+    loads unchanged."""
+
+    def __init__(self, card_mode: str, n_cards: int, dims: dict[str, int] | None = None) -> None:
         super().__init__()
+        d = dims or {}
+        card_embed_dim = d.get("card_embed_dim", CARD_EMBED_DIM)
+        card_struct_hidden = d.get("card_struct_hidden", CARD_STRUCT_HIDDEN)
+        card_text_hidden = d.get("card_text_hidden", CARD_TEXT_HIDDEN)
+        zone_hidden = d.get("zone_hidden", ZONE_HIDDEN)
+        hist_hidden = d.get("hist_hidden", HIST_HIDDEN)
+        trunk_dim = d.get("trunk_dim", TRUNK_DIM)
+        option_hidden = d.get("option_hidden", OPTION_HIDDEN)
+
         self.card_mode = card_mode
-        self.card_embedder = CardEmbedder(card_mode, n_cards)
+        self.dims = {
+            "card_embed_dim": card_embed_dim, "card_struct_hidden": card_struct_hidden,
+            "card_text_hidden": card_text_hidden, "zone_hidden": zone_hidden,
+            "hist_hidden": hist_hidden, "trunk_dim": trunk_dim, "option_hidden": option_hidden,
+        }
+        self.card_embedder = CardEmbedder(card_mode, n_cards, card_embed_dim, card_struct_hidden, card_text_hidden)
 
         zone_names = ("my_active", "my_bench", "my_hand", "my_discard", "my_prize", "opp_active", "opp_bench", "opp_discard", "opp_prize")
         self.zone_names = zone_names
-        self.zone_encoder = ZoneEncoder()  # weights shared across zones (permutation-invariant, zone-agnostic)
-        self.zone_type_embed = nn.Embedding(len(zone_names), ZONE_HIDDEN)
+        # weights shared across zones (permutation-invariant, zone-agnostic)
+        self.zone_encoder = ZoneEncoder(in_dim=card_embed_dim, hidden=zone_hidden)
+        self.zone_type_embed = nn.Embedding(len(zone_names), zone_hidden)
 
-        self.history = HistoryEncoder()
+        self.history = HistoryEncoder(hidden=hist_hidden)
 
-        trunk_in = len(zone_names) * ZONE_HIDDEN + HIST_HIDDEN + N_HIDDEN_COUNTS + N_GLOBAL_SCALARS
+        trunk_in = len(zone_names) * zone_hidden + hist_hidden + N_HIDDEN_COUNTS + N_GLOBAL_SCALARS
         self.trunk = nn.Sequential(
-            nn.Linear(trunk_in, TRUNK_DIM), nn.ReLU(), nn.Linear(TRUNK_DIM, TRUNK_DIM), nn.ReLU()
+            nn.Linear(trunk_in, trunk_dim), nn.ReLU(), nn.Linear(trunk_dim, trunk_dim), nn.ReLU()
         )
 
-        self.policy_head = PolicyHead()
-        self.value_head = ValueHead()
-        self.belief_head = BeliefHead()
+        self.policy_head = PolicyHead(trunk_dim=trunk_dim, card_embed_dim=card_embed_dim, option_hidden=option_hidden)
+        self.value_head = ValueHead(trunk_dim=trunk_dim)
+        self.belief_head = BeliefHead(trunk_dim=trunk_dim)
 
     # -- forward --------------------------------------------------------
 
