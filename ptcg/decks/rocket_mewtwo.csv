@@ -1,0 +1,82 @@
+# Team Rocket's Mewtwo ex -- Grass go-wide
+# Week 5: adopted verbatim from a real player captured via the Kaggle live
+# ladder (identity "LiamK", public leaderboard rank 3, score 1150.7 at pull
+# time -- see artifacts/week4_pull_report.json / week4_archetype_report.json).
+# Not our own deck-building guess: this is what an actual top-ranked
+# competitor is running.
+#
+# Concept, verified against real card text: Team Rocket's Mewtwo ex (431)
+# cannot attack unless 4+ Team Rocket's Pokemon are in play -- a real
+# go-wide requirement, not a single-attacker plan like lucario_fighting.
+# Team Rocket's Spidops (401) scales its own attack 30 dmg per Team
+# Rocket's Pokemon in play, so the deck wants the board full of its own
+# tagged Pokemon. Team Rocket's Articuno (414) protects Basic Team Rocket's
+# Pokemon from opposing attack effects, and Team Rocket's Giovanni (1218)
+# gives forced-switch board control. Structurally this is a completely
+# different game plan from the ex/Mega-ex single-attacker line
+# lucario_fighting ran, and (per the real pull) has real top-of-ladder
+# results behind it.
+#
+# --- Pokemon (15) ---
+400
+400
+400
+400
+401
+401
+401
+401
+434
+434
+434
+414
+414
+431
+431
+# --- Trainers (32) ---
+1134
+1134
+1134
+1134
+1152
+1152
+1152
+1152
+1216
+1216
+1216
+1216
+1220
+1220
+1220
+1220
+1094
+1094
+1094
+1218
+1218
+1218
+1227
+1227
+1227
+1257
+1257
+1257
+1121
+1159
+1175
+1217
+# --- Energy (13) ---
+1
+1
+1
+1
+1
+1
+1
+1
+1
+15
+15
+15
+15

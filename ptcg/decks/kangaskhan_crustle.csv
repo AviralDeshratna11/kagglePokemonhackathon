@@ -1,0 +1,86 @@
+# Mega Kangaskhan ex + Crustle -- a real deck that answers its own weakness
+# Week 7: found via a MAP-Elites-lite population search over 5 real
+# archetypes captured from the live ladder this session (not built or
+# guessed) -- adopted verbatim from a real player (leaderboard rank 3,
+# "LiamK", same source as rocket_mewtwo -- a strong player evidently runs
+# more than one archetype). See artifacts/week7_map_elites.json /
+# artifacts/week7_double_oracle.json for the full search.
+#
+# Notable, and the reason this deck stood out in the search: it runs
+# Crustle (345) -- "Prevent all damage done to this Pokemon by attacks from
+# your opponent's Pokemon {ex}" -- as a 4-of alongside Mega Kangaskhan ex
+# (756), its own ex attacker. Rather than avoiding the ex-counter problem
+# this whole session chased (lucario_fighting's 2% Crustle matchup,
+# rocket_mewtwo never facing it directly), this real deck plays *both
+# sides*: an ex win condition and a hard answer to the exact card that
+# counters ex win conditions, in the same 60 cards.
+#
+# Piloted by nothing but the existing, unmodified heuristic (no new
+# training), this deck's worst-case win rate against a panel of
+# {crustle-wall, lucario_fighting, greedy, first} was the best found of
+# any deck this entire session -- see the decisive bench for the real,
+# 150-games/pair confirmation.
+#
+# --- Pokemon (12) ---
+344
+344
+344
+344
+345
+345
+345
+345
+756
+756
+756
+756
+# --- Trainers (35) ---
+1086
+1086
+1086
+1086
+1122
+1122
+1122
+1122
+1123
+1123
+1123
+1123
+1147
+1147
+1147
+1147
+1197
+1197
+1197
+1197
+1225
+1225
+1225
+1225
+1227
+1227
+1227
+1227
+1087
+1087
+1182
+1182
+1264
+1264
+1159
+# --- Energy (13) ---
+11
+11
+11
+11
+14
+14
+14
+14
+18
+18
+18
+18
+1

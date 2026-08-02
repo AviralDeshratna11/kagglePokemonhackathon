@@ -106,7 +106,9 @@ def load_bc_policy(checkpoint_path: str | Path, deck_ids: Sequence[int], db: Car
         )
     table = CardTable.from_tensors(ckpt["card_ids"], ckpt["card_struct"], ckpt.get("card_text"))
 
-    model = BeliefSetDMCLite(card_mode=card_mode, n_cards=ckpt["n_cards"], dims=ckpt.get("dims"))
+    model = BeliefSetDMCLite(
+        card_mode=card_mode, n_cards=ckpt["n_cards"], dims=ckpt.get("dims"), use_spr=ckpt.get("use_spr", False)
+    )
     model.load_state_dict(ckpt["state_dict"])
     model.eval()
     return BCPolicy(deck_ids, model, table, card_mode)

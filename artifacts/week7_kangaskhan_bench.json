@@ -1,0 +1,558 @@
+{
+  "games_per_pair": 150,
+  "seconds": 1210.84,
+  "ladder": [
+    {
+      "agent": "crustle_wall",
+      "mu": 683.7,
+      "sigma": 22.4,
+      "score": 616.6
+    },
+    {
+      "agent": "lucario_fighting_router",
+      "mu": 457.7,
+      "sigma": 22.2,
+      "score": 391.0
+    },
+    {
+      "agent": "lucario_fighting_bc",
+      "mu": 317.5,
+      "sigma": 22.2,
+      "score": 250.8
+    },
+    {
+      "agent": "first",
+      "mu": 243.2,
+      "sigma": 20.4,
+      "score": 182.0
+    },
+    {
+      "agent": "greedy",
+      "mu": 99.9,
+      "sigma": 21.6,
+      "score": 35.2
+    },
+    {
+      "agent": "lucario_fighting_heuristic",
+      "mu": -79.2,
+      "sigma": 22.2,
+      "score": -145.8
+    },
+    {
+      "agent": "kangaskhan_crustle_heuristic",
+      "mu": -202.8,
+      "sigma": 22.3,
+      "score": -269.6
+    }
+  ],
+  "matrix": {
+    "kangaskhan_crustle_heuristic": {
+      "lucario_fighting_heuristic": 0.6067,
+      "greedy": 0.5467,
+      "first": 0.5633,
+      "lucario_fighting_bc": 0.5733,
+      "lucario_fighting_router": 0.72,
+      "crustle_wall": 0.2567
+    },
+    "lucario_fighting_heuristic": {
+      "kangaskhan_crustle_heuristic": 0.3933,
+      "greedy": 0.36,
+      "first": 0.58,
+      "lucario_fighting_bc": 0.5333,
+      "lucario_fighting_router": 0.5267,
+      "crustle_wall": 0.1133
+    },
+    "greedy": {
+      "kangaskhan_crustle_heuristic": 0.4533,
+      "lucario_fighting_heuristic": 0.64,
+      "first": 0.5533,
+      "lucario_fighting_bc": 0.74,
+      "lucario_fighting_router": 0.6667,
+      "crustle_wall": 0.24
+    },
+    "first": {
+      "kangaskhan_crustle_heuristic": 0.4367,
+      "lucario_fighting_heuristic": 0.42,
+      "greedy": 0.4467,
+      "lucario_fighting_bc": 0.5533,
+      "lucario_fighting_router": 0.58,
+      "crustle_wall": 0.4367
+    },
+    "lucario_fighting_bc": {
+      "kangaskhan_crustle_heuristic": 0.4267,
+      "lucario_fighting_heuristic": 0.4667,
+      "greedy": 0.26,
+      "first": 0.4467,
+      "lucario_fighting_router": 0.5267,
+      "crustle_wall": 0.0667
+    },
+    "lucario_fighting_router": {
+      "kangaskhan_crustle_heuristic": 0.28,
+      "lucario_fighting_heuristic": 0.4733,
+      "greedy": 0.3333,
+      "first": 0.42,
+      "lucario_fighting_bc": 0.4733,
+      "crustle_wall": 0.0867
+    },
+    "crustle_wall": {
+      "kangaskhan_crustle_heuristic": 0.7433,
+      "lucario_fighting_heuristic": 0.8867,
+      "greedy": 0.76,
+      "first": 0.5633,
+      "lucario_fighting_bc": 0.9333,
+      "lucario_fighting_router": 0.9133
+    }
+  },
+  "worst_case": {
+    "kangaskhan_crustle_heuristic": 0.2567,
+    "lucario_fighting_heuristic": 0.1133,
+    "greedy": 0.24,
+    "first": 0.42,
+    "lucario_fighting_bc": 0.0667,
+    "lucario_fighting_router": 0.0867,
+    "crustle_wall": 0.5633
+  },
+  "duels": [
+    {
+      "a": "kangaskhan_crustle_heuristic",
+      "b": "lucario_fighting_heuristic",
+      "games": 150,
+      "a_winrate": 0.6067,
+      "ci95": [
+        0.5268,
+        0.6812
+      ],
+      "a_winrate_going_first": 0.6533,
+      "a_winrate_going_second": 0.56,
+      "draws": 0,
+      "mean_turns": 19.15,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.0075,
+      "reasons": {
+        "engine_result": 150
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "kangaskhan_crustle_heuristic",
+      "b": "greedy",
+      "games": 150,
+      "a_winrate": 0.5467,
+      "ci95": [
+        0.4668,
+        0.6242
+      ],
+      "a_winrate_going_first": 0.5067,
+      "a_winrate_going_second": 0.5867,
+      "draws": 0,
+      "mean_turns": 25.45,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.0106,
+      "reasons": {
+        "engine_result": 150
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "kangaskhan_crustle_heuristic",
+      "b": "first",
+      "games": 150,
+      "a_winrate": 0.5633,
+      "ci95": [
+        0.4834,
+        0.6401
+      ],
+      "a_winrate_going_first": 0.6267,
+      "a_winrate_going_second": 0.4933,
+      "draws": 1,
+      "mean_turns": 26.51,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.0115,
+      "reasons": {
+        "engine_result": 150
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "kangaskhan_crustle_heuristic",
+      "b": "lucario_fighting_bc",
+      "games": 150,
+      "a_winrate": 0.5733,
+      "ci95": [
+        0.4933,
+        0.6497
+      ],
+      "a_winrate_going_first": 0.5867,
+      "a_winrate_going_second": 0.56,
+      "draws": 0,
+      "mean_turns": 18.53,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 63.0,
+      "a_mean_game_seconds": 0.0094,
+      "reasons": {
+        "engine_result": 150
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "kangaskhan_crustle_heuristic",
+      "b": "lucario_fighting_router",
+      "games": 150,
+      "a_winrate": 0.72,
+      "ci95": [
+        0.6433,
+        0.7857
+      ],
+      "a_winrate_going_first": 0.7867,
+      "a_winrate_going_second": 0.6533,
+      "draws": 0,
+      "mean_turns": 20.45,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.0122,
+      "reasons": {
+        "engine_result": 150
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "kangaskhan_crustle_heuristic",
+      "b": "crustle_wall",
+      "games": 150,
+      "a_winrate": 0.2567,
+      "ci95": [
+        0.1935,
+        0.332
+      ],
+      "a_winrate_going_first": 0.2667,
+      "a_winrate_going_second": 0.24,
+      "draws": 1,
+      "mean_turns": 20.49,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.0102,
+      "reasons": {
+        "engine_result": 150
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "lucario_fighting_heuristic",
+      "b": "greedy",
+      "games": 150,
+      "a_winrate": 0.36,
+      "ci95": [
+        0.2876,
+        0.4394
+      ],
+      "a_winrate_going_first": 0.3733,
+      "a_winrate_going_second": 0.3467,
+      "draws": 0,
+      "mean_turns": 20.37,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.0089,
+      "reasons": {
+        "engine_result": 150
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "lucario_fighting_heuristic",
+      "b": "first",
+      "games": 150,
+      "a_winrate": 0.58,
+      "ci95": [
+        0.5,
+        0.656
+      ],
+      "a_winrate_going_first": 0.6133,
+      "a_winrate_going_second": 0.5467,
+      "draws": 0,
+      "mean_turns": 21.81,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.0088,
+      "reasons": {
+        "engine_result": 150
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "lucario_fighting_heuristic",
+      "b": "lucario_fighting_bc",
+      "games": 150,
+      "a_winrate": 0.5333,
+      "ci95": [
+        0.4537,
+        0.6113
+      ],
+      "a_winrate_going_first": 0.5467,
+      "a_winrate_going_second": 0.52,
+      "draws": 0,
+      "mean_turns": 11.43,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 47.0,
+      "a_mean_game_seconds": 0.0077,
+      "reasons": {
+        "engine_result": 150
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "lucario_fighting_heuristic",
+      "b": "lucario_fighting_router",
+      "games": 150,
+      "a_winrate": 0.5267,
+      "ci95": [
+        0.4471,
+        0.6049
+      ],
+      "a_winrate_going_first": 0.56,
+      "a_winrate_going_second": 0.4933,
+      "draws": 0,
+      "mean_turns": 10.88,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.0096,
+      "reasons": {
+        "engine_result": 150
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "lucario_fighting_heuristic",
+      "b": "crustle_wall",
+      "games": 150,
+      "a_winrate": 0.1133,
+      "ci95": [
+        0.072,
+        0.174
+      ],
+      "a_winrate_going_first": 0.0933,
+      "a_winrate_going_second": 0.1333,
+      "draws": 0,
+      "mean_turns": 19.13,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.0097,
+      "reasons": {
+        "engine_result": 150
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "greedy",
+      "b": "first",
+      "games": 150,
+      "a_winrate": 0.5533,
+      "ci95": [
+        0.4734,
+        0.6306
+      ],
+      "a_winrate_going_first": 0.56,
+      "a_winrate_going_second": 0.5467,
+      "draws": 0,
+      "mean_turns": 27,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.0077,
+      "reasons": {
+        "engine_result": 150
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "greedy",
+      "b": "lucario_fighting_bc",
+      "games": 150,
+      "a_winrate": 0.74,
+      "ci95": [
+        0.6644,
+        0.8036
+      ],
+      "a_winrate_going_first": 0.76,
+      "a_winrate_going_second": 0.72,
+      "draws": 0,
+      "mean_turns": 19.88,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.0058,
+      "reasons": {
+        "engine_result": 150
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "greedy",
+      "b": "lucario_fighting_router",
+      "games": 150,
+      "a_winrate": 0.6667,
+      "ci95": [
+        0.5879,
+        0.7371
+      ],
+      "a_winrate_going_first": 0.6667,
+      "a_winrate_going_second": 0.6667,
+      "draws": 0,
+      "mean_turns": 18.61,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.0068,
+      "reasons": {
+        "engine_result": 150
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "greedy",
+      "b": "crustle_wall",
+      "games": 150,
+      "a_winrate": 0.24,
+      "ci95": [
+        0.1787,
+        0.3143
+      ],
+      "a_winrate_going_first": 0.2533,
+      "a_winrate_going_second": 0.2,
+      "draws": 4,
+      "mean_turns": 21.11,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.0062,
+      "reasons": {
+        "engine_result": 150
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "first",
+      "b": "lucario_fighting_bc",
+      "games": 150,
+      "a_winrate": 0.5533,
+      "ci95": [
+        0.4734,
+        0.6306
+      ],
+      "a_winrate_going_first": 0.5067,
+      "a_winrate_going_second": 0.6,
+      "draws": 0,
+      "mean_turns": 22.47,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 31.0,
+      "a_mean_game_seconds": 0.0058,
+      "reasons": {
+        "engine_result": 150
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "first",
+      "b": "lucario_fighting_router",
+      "games": 150,
+      "a_winrate": 0.58,
+      "ci95": [
+        0.5,
+        0.656
+      ],
+      "a_winrate_going_first": 0.5467,
+      "a_winrate_going_second": 0.6133,
+      "draws": 0,
+      "mean_turns": 21.47,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 281485.0,
+      "a_mean_game_seconds": 0.0072,
+      "reasons": {
+        "engine_result": 150
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "first",
+      "b": "crustle_wall",
+      "games": 150,
+      "a_winrate": 0.4367,
+      "ci95": [
+        0.3599,
+        0.5166
+      ],
+      "a_winrate_going_first": 0.44,
+      "a_winrate_going_second": 0.4267,
+      "draws": 1,
+      "mean_turns": 20.02,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.0071,
+      "reasons": {
+        "engine_result": 150
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "lucario_fighting_bc",
+      "b": "lucario_fighting_router",
+      "games": 150,
+      "a_winrate": 0.5267,
+      "ci95": [
+        0.4471,
+        0.6049
+      ],
+      "a_winrate_going_first": 0.5067,
+      "a_winrate_going_second": 0.5467,
+      "draws": 0,
+      "mean_turns": 10.78,
+      "a_max_decision_ms": 62.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.3704,
+      "reasons": {
+        "engine_result": 150
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "lucario_fighting_bc",
+      "b": "crustle_wall",
+      "games": 150,
+      "a_winrate": 0.0667,
+      "ci95": [
+        0.0366,
+        0.1184
+      ],
+      "a_winrate_going_first": 0.08,
+      "a_winrate_going_second": 0.0533,
+      "draws": 0,
+      "mean_turns": 17.99,
+      "a_max_decision_ms": 16.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.4313,
+      "reasons": {
+        "engine_result": 150
+      },
+      "invalid_by_player": {}
+    },
+    {
+      "a": "lucario_fighting_router",
+      "b": "crustle_wall",
+      "games": 150,
+      "a_winrate": 0.0867,
+      "ci95": [
+        0.0513,
+        0.1426
+      ],
+      "a_winrate_going_first": 0.12,
+      "a_winrate_going_second": 0.0533,
+      "draws": 0,
+      "mean_turns": 18.31,
+      "a_max_decision_ms": 31.0,
+      "b_max_decision_ms": 16.0,
+      "a_mean_game_seconds": 0.4257,
+      "reasons": {
+        "engine_result": 150
+      },
+      "invalid_by_player": {}
+    }
+  ]
+}

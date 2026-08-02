@@ -1,0 +1,376 @@
+{
+  "kangaskhan_crustle": {
+    "deck": "kangaskhan_crustle",
+    "games_per_pair": 150,
+    "seconds": 38.45,
+    "ladder": [
+      {
+        "agent": "first",
+        "mu": 643.9,
+        "sigma": 20.5,
+        "score": 582.5
+      },
+      {
+        "agent": "greedy",
+        "mu": 525.7,
+        "sigma": 20.5,
+        "score": 464.1
+      },
+      {
+        "agent": "pre_week8_heuristic",
+        "mu": 351.7,
+        "sigma": 20.7,
+        "score": 289.7
+      },
+      {
+        "agent": "new_heuristic",
+        "mu": 145.0,
+        "sigma": 21.7,
+        "score": 79.9
+      }
+    ],
+    "matrix": {
+      "new_heuristic": {
+        "pre_week8_heuristic": 0.56,
+        "greedy": 0.4433,
+        "first": 0.5733
+      },
+      "pre_week8_heuristic": {
+        "new_heuristic": 0.44,
+        "greedy": 0.4367,
+        "first": 0.56
+      },
+      "greedy": {
+        "new_heuristic": 0.5567,
+        "pre_week8_heuristic": 0.5633,
+        "first": 0.5667
+      },
+      "first": {
+        "new_heuristic": 0.4267,
+        "pre_week8_heuristic": 0.44,
+        "greedy": 0.4333
+      }
+    },
+    "worst_case": {
+      "new_heuristic": 0.4433,
+      "pre_week8_heuristic": 0.4367,
+      "greedy": 0.5567,
+      "first": 0.4267
+    },
+    "duels": [
+      {
+        "a": "new_heuristic",
+        "b": "pre_week8_heuristic",
+        "games": 150,
+        "a_winrate": 0.56,
+        "ci95": [
+          0.48,
+          0.637
+        ],
+        "a_winrate_going_first": 0.5867,
+        "a_winrate_going_second": 0.5333,
+        "draws": 0,
+        "mean_turns": 22.48,
+        "a_max_decision_ms": 16.0,
+        "b_max_decision_ms": 16.0,
+        "a_mean_game_seconds": 0.0079,
+        "reasons": {
+          "engine_result": 150
+        },
+        "invalid_by_player": {}
+      },
+      {
+        "a": "new_heuristic",
+        "b": "greedy",
+        "games": 150,
+        "a_winrate": 0.4433,
+        "ci95": [
+          0.3662,
+          0.5233
+        ],
+        "a_winrate_going_first": 0.4533,
+        "a_winrate_going_second": 0.4267,
+        "draws": 1,
+        "mean_turns": 25.76,
+        "a_max_decision_ms": 16.0,
+        "b_max_decision_ms": 16.0,
+        "a_mean_game_seconds": 0.0126,
+        "reasons": {
+          "engine_result": 150
+        },
+        "invalid_by_player": {}
+      },
+      {
+        "a": "new_heuristic",
+        "b": "first",
+        "games": 150,
+        "a_winrate": 0.5733,
+        "ci95": [
+          0.4933,
+          0.6497
+        ],
+        "a_winrate_going_first": 0.5867,
+        "a_winrate_going_second": 0.56,
+        "draws": 0,
+        "mean_turns": 26.99,
+        "a_max_decision_ms": 16.0,
+        "b_max_decision_ms": 16.0,
+        "a_mean_game_seconds": 0.0119,
+        "reasons": {
+          "engine_result": 150
+        },
+        "invalid_by_player": {}
+      },
+      {
+        "a": "pre_week8_heuristic",
+        "b": "greedy",
+        "games": 150,
+        "a_winrate": 0.4367,
+        "ci95": [
+          0.3599,
+          0.5166
+        ],
+        "a_winrate_going_first": 0.4267,
+        "a_winrate_going_second": 0.44,
+        "draws": 1,
+        "mean_turns": 26.23,
+        "a_max_decision_ms": 16.0,
+        "b_max_decision_ms": 16.0,
+        "a_mean_game_seconds": 0.0119,
+        "reasons": {
+          "engine_result": 150
+        },
+        "invalid_by_player": {}
+      },
+      {
+        "a": "pre_week8_heuristic",
+        "b": "first",
+        "games": 150,
+        "a_winrate": 0.56,
+        "ci95": [
+          0.48,
+          0.637
+        ],
+        "a_winrate_going_first": 0.6,
+        "a_winrate_going_second": 0.52,
+        "draws": 0,
+        "mean_turns": 27.15,
+        "a_max_decision_ms": 16.0,
+        "b_max_decision_ms": 16.0,
+        "a_mean_game_seconds": 0.0118,
+        "reasons": {
+          "engine_result": 150
+        },
+        "invalid_by_player": {}
+      },
+      {
+        "a": "greedy",
+        "b": "first",
+        "games": 150,
+        "a_winrate": 0.5667,
+        "ci95": [
+          0.4867,
+          0.6433
+        ],
+        "a_winrate_going_first": 0.6267,
+        "a_winrate_going_second": 0.5067,
+        "draws": 0,
+        "mean_turns": 25.99,
+        "a_max_decision_ms": 16.0,
+        "b_max_decision_ms": 16.0,
+        "a_mean_game_seconds": 0.0054,
+        "reasons": {
+          "engine_result": 150
+        },
+        "invalid_by_player": {}
+      }
+    ]
+  },
+  "lucario_fighting": {
+    "deck": "lucario_fighting",
+    "games_per_pair": 150,
+    "seconds": 20.66,
+    "ladder": [
+      {
+        "agent": "first",
+        "mu": 579.7,
+        "sigma": 22.5,
+        "score": 512.3
+      },
+      {
+        "agent": "pre_week8_heuristic",
+        "mu": 440.2,
+        "sigma": 24.4,
+        "score": 366.9
+      },
+      {
+        "agent": "greedy",
+        "mu": 352.1,
+        "sigma": 22.9,
+        "score": 283.4
+      },
+      {
+        "agent": "new_heuristic",
+        "mu": 241.8,
+        "sigma": 23.4,
+        "score": 171.5
+      }
+    ],
+    "matrix": {
+      "new_heuristic": {
+        "pre_week8_heuristic": 0.4667,
+        "greedy": 0.9133,
+        "first": 0.8
+      },
+      "pre_week8_heuristic": {
+        "new_heuristic": 0.5333,
+        "greedy": 0.9533,
+        "first": 0.82
+      },
+      "greedy": {
+        "new_heuristic": 0.0867,
+        "pre_week8_heuristic": 0.0467,
+        "first": 0.1533
+      },
+      "first": {
+        "new_heuristic": 0.2,
+        "pre_week8_heuristic": 0.18,
+        "greedy": 0.8467
+      }
+    },
+    "worst_case": {
+      "new_heuristic": 0.4667,
+      "pre_week8_heuristic": 0.5333,
+      "greedy": 0.0467,
+      "first": 0.18
+    },
+    "duels": [
+      {
+        "a": "new_heuristic",
+        "b": "pre_week8_heuristic",
+        "games": 150,
+        "a_winrate": 0.4667,
+        "ci95": [
+          0.3887,
+          0.5463
+        ],
+        "a_winrate_going_first": 0.4933,
+        "a_winrate_going_second": 0.44,
+        "draws": 0,
+        "mean_turns": 10.93,
+        "a_max_decision_ms": 16.0,
+        "b_max_decision_ms": 16.0,
+        "a_mean_game_seconds": 0.0061,
+        "reasons": {
+          "engine_result": 150
+        },
+        "invalid_by_player": {}
+      },
+      {
+        "a": "new_heuristic",
+        "b": "greedy",
+        "games": 150,
+        "a_winrate": 0.9133,
+        "ci95": [
+          0.8574,
+          0.9487
+        ],
+        "a_winrate_going_first": 0.96,
+        "a_winrate_going_second": 0.8667,
+        "draws": 0,
+        "mean_turns": 8.51,
+        "a_max_decision_ms": 16.0,
+        "b_max_decision_ms": 16.0,
+        "a_mean_game_seconds": 0.0036,
+        "reasons": {
+          "engine_result": 150
+        },
+        "invalid_by_player": {}
+      },
+      {
+        "a": "new_heuristic",
+        "b": "first",
+        "games": 150,
+        "a_winrate": 0.8,
+        "ci95": [
+          0.7289,
+          0.8562
+        ],
+        "a_winrate_going_first": 0.8267,
+        "a_winrate_going_second": 0.7733,
+        "draws": 0,
+        "mean_turns": 12.29,
+        "a_max_decision_ms": 16.0,
+        "b_max_decision_ms": 16.0,
+        "a_mean_game_seconds": 0.0078,
+        "reasons": {
+          "engine_result": 150
+        },
+        "invalid_by_player": {}
+      },
+      {
+        "a": "pre_week8_heuristic",
+        "b": "greedy",
+        "games": 150,
+        "a_winrate": 0.9533,
+        "ci95": [
+          0.9068,
+          0.9772
+        ],
+        "a_winrate_going_first": 0.9733,
+        "a_winrate_going_second": 0.9333,
+        "draws": 0,
+        "mean_turns": 9.23,
+        "a_max_decision_ms": 16.0,
+        "b_max_decision_ms": 16.0,
+        "a_mean_game_seconds": 0.005,
+        "reasons": {
+          "engine_result": 150
+        },
+        "invalid_by_player": {}
+      },
+      {
+        "a": "pre_week8_heuristic",
+        "b": "first",
+        "games": 150,
+        "a_winrate": 0.82,
+        "ci95": [
+          0.7508,
+          0.8732
+        ],
+        "a_winrate_going_first": 0.8933,
+        "a_winrate_going_second": 0.7467,
+        "draws": 0,
+        "mean_turns": 11.93,
+        "a_max_decision_ms": 16.0,
+        "b_max_decision_ms": 16.0,
+        "a_mean_game_seconds": 0.0069,
+        "reasons": {
+          "engine_result": 150
+        },
+        "invalid_by_player": {}
+      },
+      {
+        "a": "greedy",
+        "b": "first",
+        "games": 150,
+        "a_winrate": 0.1533,
+        "ci95": [
+          0.1044,
+          0.2196
+        ],
+        "a_winrate_going_first": 0.16,
+        "a_winrate_going_second": 0.1467,
+        "draws": 0,
+        "mean_turns": 11.26,
+        "a_max_decision_ms": 16.0,
+        "b_max_decision_ms": 16.0,
+        "a_mean_game_seconds": 0.0026,
+        "reasons": {
+          "engine_result": 150
+        },
+        "invalid_by_player": {}
+      }
+    ]
+  }
+}

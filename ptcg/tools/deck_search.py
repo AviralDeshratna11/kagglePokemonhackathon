@@ -40,7 +40,10 @@ from ..core.safety import SafetyShell
 from ..decks.registry import available_decks, load_deck, write_deck
 from ..eval.arena import duel
 
-__all__ = ["build_crustle_test_deck", "propose_swap", "evaluate_deck", "search", "main"]
+__all__ = [
+    "build_crustle_test_deck", "propose_swap", "evaluate_deck", "search",
+    "map_elites_search", "replicator_dynamics", "double_oracle_lite_solve", "main",
+]
 
 DWEBBLE_ID = 344
 CRUSTLE_ID = 345
@@ -74,13 +77,21 @@ def build_crustle_test_deck(db: CardDB) -> list[int]:
     return deck
 
 
-def propose_swap(deck: list[int], db: CardDB, rng: random.Random, tries: int = 80) -> list[int] | None:
+def propose_swap(
+    deck: list[int], db: CardDB, rng: random.Random, tries: int = 80, protected_cards: set[int] | None = None
+) -> list[int] | None:
     """One random legal single-card swap. Returns ``None`` if no legal swap
-    was found in ``tries`` attempts (the search just skips that candidate)."""
+    was found in ``tries`` attempts (the search just skips that candidate).
+
+    ``protected_cards`` defaults to ``KEY_CARDS`` (lucario_fighting's own
+    win condition) for backward compatibility with the existing single-deck
+    search below; Week 7's MAP-Elites pass over multiple archetypes passes
+    each deck's own key cards explicitly instead."""
+    protected = KEY_CARDS if protected_cards is None else protected_cards
     counts: dict[int, int] = {}
     for cid in deck:
         counts[cid] = counts.get(cid, 0) + 1
-    removable = [cid for cid in counts if cid not in KEY_CARDS]
+    removable = [cid for cid in counts if cid not in protected]
     pool = [c.card_id for c in db.all_cards() if not c.ace_spec]
 
     for _ in range(tries):
@@ -207,6 +218,164 @@ def search(
         "best_deck": best_deck,
         "improved": best_deck != current,
         "history": history,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Week 7: MAP-Elites-lite archive + Double-Oracle-lite meta-game solve.
+#
+# The Week-3 docstring above said this real infrastructure wasn't built yet.
+# It is now, scoped honestly: a real behavior-descriptor archive (not a
+# single best-of-N), seeded from the 5 real, evidence-backed decks this
+# session actually captured from the live ladder (not invented archetypes),
+# mutated via the same legal-swap machinery every deck-search pass this
+# session has used, and solved via replicator dynamics over the resulting
+# payoff matrix (the standard tractable approximation for an empirical game
+# too large for an exact LP solve) rather than a full Double-Oracle
+# best-response loop.
+# ---------------------------------------------------------------------------
+
+
+def _fixed_map_elites_panel(db: CardDB) -> dict[str, list[int]]:
+    """A small, fixed reference panel used for *every* archive member, so
+    archive entries are directly comparable to each other (unlike
+    ``_panel``, which excludes whichever deck is being evaluated)."""
+    return {
+        "crustle": build_crustle_test_deck(db),
+        "lucario_fighting": load_deck("lucario_fighting"),
+    }
+
+
+def _descriptor(results: dict[str, float]) -> tuple[tuple[int, int], float, float]:
+    """Coarse behavior descriptor: (worst-case decile, average decile)
+    against the fixed panel -- the MAP-Elites archive key."""
+    worst = min(results.values())
+    avg = sum(results.values()) / len(results)
+    return (int(worst * 10), int(avg * 10)), worst, avg
+
+
+def map_elites_search(
+    seed_decks: dict[str, tuple[list[int], set[int]]],
+    db: CardDB,
+    rounds: int = 8,
+    mutations_per_round: int = 3,
+    screen_games: int = 15,
+    confirm_games: int = 50,
+    seed: int = 0,
+) -> dict[str, Any]:
+    """``seed_decks`` maps a name to ``(deck, protected_cards)``. Archive is
+    keyed by the behavior descriptor from :func:`_descriptor`; each cell
+    keeps only the highest-worst-case deck found for it (elitist), so the
+    archive as a whole traces out the real worst-case/average frontier
+    across everything explored, not just one winner."""
+    panel = _fixed_map_elites_panel(db)
+    rng = random.Random(seed)
+
+    archive: dict[tuple[int, int], dict[str, Any]] = {}
+    protections: dict[str, set[int]] = {}
+
+    def insert(name: str, deck: list[int], results: dict[str, float]) -> bool:
+        key, worst, avg = _descriptor(results)
+        cur = archive.get(key)
+        if cur is None or worst > cur["worst"]:
+            archive[key] = {"name": name, "deck": deck, "results": results, "worst": worst, "avg": avg}
+            return True
+        return False
+
+    t0 = time.time()
+    for name, (deck, protected) in seed_decks.items():
+        res = evaluate_deck(deck, db, panel, confirm_games, seed=seed)
+        insert(f"seed:{name}", deck, res)
+        protections[name] = protected
+        print(f"  seeded {name}: worst={worst_case(res)} avg={sum(res.values())/len(res):.3f}")
+
+    history: list[dict[str, Any]] = []
+    seed_names = list(seed_decks.keys())
+    for r in range(rounds):
+        base_name = rng.choice(seed_names)
+        base_deck, base_protected = seed_decks[base_name]
+        # mutate off the *current archive member closest to this seed's
+        # lineage* when one exists, else the seed itself -- lets the
+        # archive actually accumulate improvements round over round.
+        lineage = [v for v in archive.values() if v["name"].split(":")[0] == base_name or v["name"] == f"seed:{base_name}"]
+        base_for_mutation = rng.choice(lineage)["deck"] if lineage else base_deck
+
+        accepted_this_round = 0
+        for _ in range(mutations_per_round):
+            cand = propose_swap(base_for_mutation, db, rng, protected_cards=base_protected)
+            if cand is None:
+                continue
+            res = evaluate_deck(cand, db, panel, screen_games, seed=seed + r * 1000)
+            if insert(f"{base_name}:r{r}", cand, res):
+                accepted_this_round += 1
+        history.append({"round": r, "base": base_name, "archive_size": len(archive), "accepted": accepted_this_round, "seconds": round(time.time() - t0, 2)})
+        print(f"  round {r} (mutating {base_name}): archive_size={len(archive)} accepted={accepted_this_round}")
+
+    archive_list = sorted(archive.values(), key=lambda v: (-v["worst"], -v["avg"]))
+    return {"panel": list(panel.keys()), "archive": archive_list, "history": history, "seconds": round(time.time() - t0, 2)}
+
+
+def replicator_dynamics(payoff, iterations: int = 500, eta: float = 0.5):
+    """Pure, dependency-free (numpy only) replicator-dynamics solve for the
+    symmetric-game approximate Nash mixture over a square win-rate payoff
+    matrix -- factored out from :func:`double_oracle_lite_solve` so the
+    solver itself is testable against a known equilibrium without playing
+    any real games."""
+    import numpy as np
+
+    payoff = np.asarray(payoff, dtype=float)
+    n = payoff.shape[0]
+    x = np.full(n, 1.0 / n)
+    for _ in range(iterations):
+        fitness = payoff @ x
+        x = x * np.exp(eta * (fitness - fitness.mean()))
+        x = x / x.sum()
+    return x
+
+
+def double_oracle_lite_solve(archive: list[dict[str, Any]], db: CardDB, games: int = 40, seed: int = 0, top_n: int = 8) -> dict[str, Any]:
+    """Week 7's Double-Oracle-lite: build the full pairwise payoff matrix
+    across the archive's top ``top_n`` decks (by worst-case fitness) and
+    solve for an approximate symmetric Nash mixture via replicator
+    dynamics -- the standard tractable approximation for an empirical game
+    this size, needing no new dependency (pure numpy) and no exact LP
+    solver, which would be real added scope not justified here."""
+    import numpy as np
+
+    top = archive[:top_n]
+    names = [a["name"] for a in top]
+    decks = [a["deck"] for a in top]
+    n = len(top)
+
+    payoff = np.full((n, n), 0.5)
+
+    def shell_for(policy_cls, d):
+        pol = policy_cls(d, db, HeuristicConfig()) if policy_cls is HeuristicPolicy else policy_cls(d)
+        return SafetyShell(pol, db, FallbackPolicy(d), BudgetManager()).act
+
+    for i in range(n):
+        for j in range(i + 1, n):
+            d = duel(
+                names[i], lambda dd=decks[i]: shell_for(HeuristicPolicy, dd), decks[i],
+                names[j], lambda dd=decks[j]: shell_for(HeuristicPolicy, dd), decks[j],
+                games=games, seed0=seed + i * 1000 + j,
+            )
+            wr = d.summary()["a_winrate"]
+            payoff[i, j] = wr
+            payoff[j, i] = 1.0 - wr
+
+    x = replicator_dynamics(payoff)
+
+    order = np.argsort(-x)
+    ranked = [{"name": names[i], "weight": round(float(x[i]), 4)} for i in order]
+    best_idx = int(order[0])
+
+    return {
+        "names": names,
+        "payoff_matrix": payoff.round(4).tolist(),
+        "equilibrium_mixture": ranked,
+        "recommended_deck_name": names[best_idx],
+        "recommended_deck": decks[best_idx],
     }
 
 

@@ -1,0 +1,67 @@
+{
+  "context": {
+    "starting_live_score": 393.4,
+    "target": 1100,
+    "leaderboard_snapshot": {"top_score": 1153.8, "n_teams": 5877, "rank_1_team": "Dominic Peel"}
+  },
+  "data_pull": {
+    "method": "identity-filtered, bounded pull: 300 episode files/day from the 2 most recent days, downloaded one at a time, matched against a target set built from the top 150 leaderboard rows (350 names/usernames), converted-or-discarded immediately (no raw JSON accumulation)",
+    "files_scanned": 600,
+    "files_matched": 583,
+    "match_rate_pct": 97.2,
+    "both_sides_matched_games": 411,
+    "decision_records_extracted": 83985,
+    "unique_matched_top_players": 64,
+    "unique_decks_captured": 26,
+    "note_on_high_match_rate": "not overmatching on generic strings (spot-checked: 64 distinct, plausible real leaderboard names, e.g. 'Dominic Peel', 'Majkel1337', 'flg') -- the live ladder's active game population is dominated by its most frequent (generally strongest) players, so a top-150 identity filter still captured 97% of a sequential file sample",
+    "critical_bug_found_and_fixed": "the original Week-1 speculative parser paired each step's action with that SAME step's observation. Real data (hand-validated against a downloaded file, 127/127 decisions cross-checked against build_candidates with 0 mismatches) shows the action at tick i responds to tick (i-1)'s observation for that player -- an off-by-one that would have silently corrupted every extracted decision had it shipped unverified."
+  },
+  "archetype_findings": {
+    "source": "artifacts/week4_archetype_report.json",
+    "headline": "Crustle (the ex-attacker counter this session already found and patched lucario_fighting against) appears in 4 of 26 unique real top-player decks (15.4%) -- not a hypothetical threat, a card ranked competitors are actually running.",
+    "other_real_archetypes_seen": [
+      "Team Rocket's Mewtwo ex / Articuno / Tarountula-Spidops shell (5-6 decks each)",
+      "Marnie's Impidimp/Morgrem/Grimmsnarl ex (4 decks)",
+      "Mega Kangaskhan ex (4 decks)",
+      "Dragapult ex line (3 decks) -- matches a meta archetype the original planning material named"
+    ],
+    "our_own_archetype_representation": "0 of 26 unique captured decks contain Mega Lucario ex (678) or Riolu (333) -- lucario_fighting has zero presence among the top-150 leaderboard players sampled this pull."
+  },
+  "training": {
+    "bc_replay": {
+      "corpus": "pure real-replay, 85000 records from artifacts/traces/replays",
+      "final_val_policy_top1_acc": 0.699,
+      "note": "lower than self-play-derived checkpoints' typical ~90%+ -- expected, since predicting varied real players' choices across many different decks is inherently harder than predicting one deterministic heuristic"
+    },
+    "bc_replay_blend": {
+      "corpus": "artifacts/traces/replays + artifacts/traces/selfplay_v1, 85000 records",
+      "actual_observed_mix": {"replay_pct": 8.2, "selfplay_pct": 91.8},
+      "mix_caveat": "load_records shuffles by FILE, not by weighted source; selfplay_v1 has ~16x more files than replays (16000 vs 994), so the naive multi-directory blend is heavily self-play-dominated, not a balanced 50/50 mix. This is a real methodological limitation of the simple approach taken, noted rather than hidden.",
+      "final_val_policy_top1_acc": 0.900
+    }
+  },
+  "bench_replay_vs_existing": {
+    "games_per_pair": 150,
+    "result_file": "artifacts/week4_replay_bench.json",
+    "bc_replay_vs_teacher_bc_text": {"a_winrate": 0.22, "ci95": [0.1612, 0.2928], "verdict": "bc_replay loses decisively (CI excludes 50%)"},
+    "bc_replay_vs_heuristic": {"a_winrate": 0.18, "ci95": [0.1268, 0.2492], "verdict": "bc_replay loses decisively"},
+    "bc_replay_vs_router": {"a_winrate": 0.1333, "ci95": [0.088, 0.197], "verdict": "bc_replay loses decisively"},
+    "bc_replay_blend_vs_teacher_bc_text": {"a_winrate": 0.5533, "ci95": [0.4734, 0.6306], "verdict": "tie, CI includes 50% -- not a decisive win despite the favorable point estimate"},
+    "bc_replay_blend_vs_heuristic": {"a_winrate": 0.4933, "ci95": [0.4145, 0.5725], "verdict": "tie"},
+    "bc_replay_blend_vs_router": {"a_winrate": 0.4867, "ci95": [0.408, 0.566], "verdict": "tie"},
+    "diagnosis": "bc_replay's collapse is explained by deck mismatch, not by real-player imitation being a bad idea: 0 of the 26 real decks captured this pull contain Mega Lucario ex or Riolu, so bc_replay was trained entirely on players piloting archetypes our engine has never run and then forced onto lucario_fighting at bench time -- a severe out-of-distribution deployment. bc_replay_blend avoids collapse because it's 91.8% in-distribution self-play data by accident of the naive blend, not because the real-data signal was integrated well.",
+    "gate_result": "Per this project's standing gate (only fuzz/ship a checkpoint that clears a real, CI-backed win over bc_text), neither new checkpoint clears the bar. Neither was fuzzed or is recommended for the live submission."
+  },
+  "recommendation_for_next_session": {
+    "headline": "Real-ladder imitation learning is validated as a real, working pipeline (parser correctness confirmed, real identity matching works, real archetype data extracted) -- but it only pays off when applied to a deck the real data actually represents. lucario_fighting has zero representation among 26 real top-150 decks captured.",
+    "options": [
+      "Filter future pulls specifically for players running an ex/Mega-ex Fighting-type deck close to lucario_fighting, if any exist elsewhere in the corpus -- a fair apples-to-apples imitation test.",
+      "Switch the submitted deck to one of the real, popular, evidence-backed archetypes found this pull (e.g. the Team Rocket's Mewtwo ex shell, seen in 5-6 of 26 real decks) and imitate real players who actually ran it -- a larger pivot, not something auto-executed without explicit sign-off given it replaces the deck this whole session's Weeks 0-3 work was built around.",
+      "Fix the blend ratio properly (weight by source, not by file count) before drawing any conclusion about whether real data helps when mixed with self-play."
+    ]
+  },
+  "tests": {
+    "suites": ["test_week0.py", "test_week1.py", "test_week2.py", "test_week3.py", "test_week4.py"],
+    "result": "98 passed, 0 failed"
+  }
+}

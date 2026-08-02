@@ -17,6 +17,7 @@ env/
 # Generated training data / model artifacts (regenerate via ptcg/tools/*)
 artifacts/traces/
 artifacts/selfplay_v2*/
+artifacts/selfplay_rocket_v1/
 *.pt
 *.pth
 dist/

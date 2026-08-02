@@ -40,6 +40,7 @@ __all__ = [
     "HIST_LEN",
     "CardTable",
     "BeliefSetDMCLite",
+    "DynamicsHead",
     "ModelInput",
     "encode_view",
     "zone_cards_from_ids",
@@ -392,6 +393,26 @@ class BeliefHead(nn.Module):
         }
 
 
+class DynamicsHead(nn.Module):
+    """Week 7 SPR-lite (self-predictive representations): predicts the
+    trunk embedding of this *same player's next decision* from the current
+    trunk plus the raw feature vector of the action just taken. Trained
+    against a stop-gradient target (BYOL-style) rather than a contrastive
+    loss, since that needs no negative samples / large batch to avoid
+    representation collapse -- what makes this cheap enough for CPU. Never
+    part of the main ``forward()`` pass; the training loop calls it
+    separately once it knows which action was chosen."""
+
+    def __init__(self, trunk_dim: int = TRUNK_DIM, action_dim: int = FEATURE_DIM) -> None:
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(trunk_dim + action_dim, trunk_dim), nn.ReLU(), nn.Linear(trunk_dim, trunk_dim)
+        )
+
+    def forward(self, trunk: torch.Tensor, action_feat: torch.Tensor) -> torch.Tensor:
+        return self.net(torch.cat([trunk, action_feat], dim=-1))
+
+
 # ---------------------------------------------------------------------------
 # The composite network
 # ---------------------------------------------------------------------------
@@ -405,7 +426,9 @@ class BeliefSetDMCLite(nn.Module):
     the original Week-1 sizing exactly, so every existing checkpoint still
     loads unchanged."""
 
-    def __init__(self, card_mode: str, n_cards: int, dims: dict[str, int] | None = None) -> None:
+    def __init__(
+        self, card_mode: str, n_cards: int, dims: dict[str, int] | None = None, use_spr: bool = False
+    ) -> None:
         super().__init__()
         d = dims or {}
         card_embed_dim = d.get("card_embed_dim", CARD_EMBED_DIM)
@@ -440,6 +463,9 @@ class BeliefSetDMCLite(nn.Module):
         self.policy_head = PolicyHead(trunk_dim=trunk_dim, card_embed_dim=card_embed_dim, option_hidden=option_hidden)
         self.value_head = ValueHead(trunk_dim=trunk_dim)
         self.belief_head = BeliefHead(trunk_dim=trunk_dim)
+
+        self.use_spr = use_spr
+        self.dynamics_head = DynamicsHead(trunk_dim=trunk_dim, action_dim=FEATURE_DIM) if use_spr else None
 
     # -- forward --------------------------------------------------------
 

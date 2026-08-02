@@ -72,6 +72,20 @@ class Role:
     #: it (e.g. Iono's Kilowattrel's *Flashing Draw*). Easy to miss and
     #: expensive: a naive scorer happily strips its own attacker to draw cards.
     SELF_ENERGY_COST = "self_energy_cost"
+    #: Week 6: damage/effect scales with a count of same-affiliation Pokemon
+    #: in play (e.g. "does 30 damage for each of your Team Rocket's Pokemon
+    #: in play"). Deck-agnostic on purpose -- this text pattern recurs across
+    #: many trainer-affiliation "tribal" cards (Team Rocket's, Marnie's,
+    #: Iono's, ...), not just one archetype.
+    BOARD_SCALING = "board_scaling"
+    #: Week 6: the Pokemon cannot attack unless a minimum count of
+    #: same-affiliation Pokemon are in play (e.g. Team Rocket's Mewtwo ex).
+    #: Same deck-agnostic reasoning as ``BOARD_SCALING``.
+    BOARD_GATED = "board_gated"
+    #: Week 8: "shuffle your hand into your deck" style effects (Judge/Iono-
+    #: style Supporters). Anything still in hand when this resolves is gone
+    #: for free -- a real reason to spend marginal cards *before* playing it.
+    HAND_SHUFFLE = "hand_shuffle"
 
 
 _ROLE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
@@ -94,7 +108,30 @@ _ROLE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
         Role.SELF_ENERGY_COST,
         re.compile(r"discard (a|an|\d+)[^.]*Energy from this Pok[ée]mon", re.I),
     ),
+    (
+        Role.BOARD_SCALING,
+        re.compile(r"for each of your[^.]*Pok[ée]mon (you have )?in play", re.I),
+    ),
+    (
+        Role.BOARD_GATED,
+        re.compile(r"unless you have[^.]*\d+[^.]*or more[^.]*Pok[ée]mon in play", re.I),
+    ),
+    (
+        Role.HAND_SHUFFLE,
+        re.compile(r"shuffle[^.]*your hand into your deck", re.I),
+    ),
 )
+
+#: Possessive trainer-affiliation prefix (``Team Rocket's``, ``Marnie's``,
+#: ``Iono's``, ...) -- a real, recurring Pokemon TCG naming convention, not
+#: specific to any one archetype. Purely name-derived, so it applies
+#: uniformly to every card that uses it without a lookup table.
+_AFFILIATION_PATTERN = re.compile(r"^([A-Z][\w' ]*?'s) ")
+
+
+def _affiliation(name: str) -> str:
+    m = _AFFILIATION_PATTERN.match(name)
+    return m.group(1) if m else ""
 
 
 def _tag(text: str) -> frozenset[str]:
@@ -204,6 +241,15 @@ class Card:
     @property
     def all_text(self) -> str:
         return " ".join(self.skill_texts)
+
+    @property
+    def affiliation(self) -> str:
+        """Possessive trainer-affiliation prefix parsed from this card's own
+        ``name`` (e.g. ``"Team Rocket's"`` from "Team Rocket's Mewtwo ex"),
+        or ``""`` when the card has none. Purely name-derived -- applies to
+        any card using this real, recurring naming convention, not
+        hardcoded to one archetype."""
+        return _affiliation(self.name)
 
 
 # ---------------------------------------------------------------------------

@@ -201,7 +201,10 @@ def main(argv: list[str] | None = None) -> int:
     card_mode = teacher_ckpt["card_mode"]
 
     table = CardTable.from_tensors(teacher_ckpt["card_ids"], teacher_ckpt["card_struct"], teacher_ckpt.get("card_text"))
-    teacher = BeliefSetDMCLite(card_mode=card_mode, n_cards=teacher_ckpt["n_cards"], dims=teacher_ckpt.get("dims"))
+    teacher = BeliefSetDMCLite(
+        card_mode=card_mode, n_cards=teacher_ckpt["n_cards"], dims=teacher_ckpt.get("dims"),
+        use_spr=teacher_ckpt.get("use_spr", False),
+    )
     teacher.load_state_dict(teacher_ckpt["state_dict"])
 
     print(f"loading up to {args.max_records} records from {args.traces} ...")

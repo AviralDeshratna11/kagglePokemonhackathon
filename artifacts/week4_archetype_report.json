@@ -1,0 +1,109 @@
+{
+  "total_deck_submissions_captured": 992,
+  "unique_decks": 26,
+  "unique_matched_players": 64,
+  "top_pokemon_2plus_copies": [
+    {
+      "card_id": 112,
+      "name": "Munkidori",
+      "n_decks": 7
+    },
+    {
+      "card_id": 414,
+      "name": "Team Rocket's Articuno",
+      "n_decks": 6
+    },
+    {
+      "card_id": 400,
+      "name": "Team Rocket's Tarountula",
+      "n_decks": 5
+    },
+    {
+      "card_id": 401,
+      "name": "Team Rocket's Spidops",
+      "n_decks": 5
+    },
+    {
+      "card_id": 431,
+      "name": "Team Rocket's Mewtwo ex",
+      "n_decks": 5
+    },
+    {
+      "card_id": 104,
+      "name": "Froslass",
+      "n_decks": 4
+    },
+    {
+      "card_id": 646,
+      "name": "Marnie's Impidimp",
+      "n_decks": 4
+    },
+    {
+      "card_id": 647,
+      "name": "Marnie's Morgrem",
+      "n_decks": 4
+    },
+    {
+      "card_id": 648,
+      "name": "Marnie's Grimmsnarl ex",
+      "n_decks": 4
+    },
+    {
+      "card_id": 860,
+      "name": "Snorunt",
+      "n_decks": 4
+    },
+    {
+      "card_id": 756,
+      "name": "Mega Kangaskhan ex",
+      "n_decks": 4
+    },
+    {
+      "card_id": 66,
+      "name": "Dudunsparce",
+      "n_decks": 4
+    },
+    {
+      "card_id": 434,
+      "name": "Team Rocket's Mimikyu",
+      "n_decks": 4
+    },
+    {
+      "card_id": 344,
+      "name": "Dwebble",
+      "n_decks": 4
+    },
+    {
+      "card_id": 345,
+      "name": "Crustle",
+      "n_decks": 4
+    },
+    {
+      "card_id": 119,
+      "name": "Dreepy",
+      "n_decks": 3
+    },
+    {
+      "card_id": 120,
+      "name": "Drakloak",
+      "n_decks": 3
+    },
+    {
+      "card_id": 121,
+      "name": "Dragapult ex",
+      "n_decks": 3
+    },
+    {
+      "card_id": 305,
+      "name": "Dunsparce",
+      "n_decks": 3
+    },
+    {
+      "card_id": 741,
+      "name": "Abra",
+      "n_decks": 3
+    }
+  ],
+  "crustle_present_in_n_decks": 4,
+  "crustle_pct_of_unique_decks": 15.4
+}

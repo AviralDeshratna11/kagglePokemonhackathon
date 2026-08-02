@@ -1,0 +1,69 @@
+{
+  "headline": "First real, statistically decisive win over the live submission found this session. kangaskhan_crustle + heuristic beats lucario_fighting + heuristic 60.7% (CI [52.7%, 68.1%]), found via MAP-Elites/Double-Oracle population search, not more training. Submission rebuilt and self-verified.",
+  "widened_data_pull": {
+    "days_pulled": ["2026-07-22", "2026-07-21", "2026-07-20"],
+    "files_scanned": 899,
+    "files_matched_by_archetype": 197,
+    "records_written": 13728,
+    "errors": 1,
+    "note": "Added a per-file download timeout (60s) after Week 5's pull stalled indefinitely on a hung network call with no way to notice from outside. This run had only 1 error total vs. the prior total stall -- the fix worked.",
+    "corpus_total_files_now": 1616
+  },
+  "self_play_refinement": {
+    "method": "Reused Week 2's PFSP + frozen-teacher-KL machinery unchanged, pointed at rocket_mewtwo and seeded from bc_rocket_mewtwo.pt -- proving the self-play architecture was already deck-agnostic, not rebuilt for this archetype.",
+    "vs_own_frozen_teacher": {"a_winrate": 0.65, "ci95": [0.5236, 0.7583], "verdict": "real, statistically significant improvement"},
+    "fuzz": {"cases": 20000, "illegal_actions": 0, "selfplay_games": 150, "selfplay_illegal": 0, "ok": true},
+    "vs_current_submission_lineup": {
+      "vs_lucario_heuristic": {"a_winrate": 0.2933, "ci95": [0.2264, 0.3706]},
+      "vs_lucario_bc_text": {"a_winrate": 0.3333, "ci95": [0.2629, 0.4121]},
+      "vs_lucario_router": {"a_winrate": 0.3, "ci95": [0.2324, 0.3776]},
+      "vs_crustle_wall": {"a_winrate": 0.9933, "ci95": [0.9632, 0.9988]}
+    },
+    "honest_verdict": "The improvement did NOT transfer to the matchup that matters -- essentially unchanged (29-33%) from before self-play. Root cause: the self-play league only ever played rocket_mewtwo against opponents piloting the same deck (itself, past selves, generic baselines), never against lucario_fighting's ecosystem. Improving relative to your own lineage does not guarantee generalizing to an opponent that was never part of training."
+  },
+  "spr_lite_auxiliary_loss": {
+    "status": "built and unit-tested (14/14 test_week7.py tests pass), not run through a full retraining+bench ablation this pass",
+    "reason": "Time was redirected to capitalize on the MAP-Elites finding once it produced a real, decisive win -- a higher-confidence lever than an unproven auxiliary loss. SPR remains real, working, backward-compatible architecture (opt-in via --use-spr, existing checkpoints unaffected) ready for a future pass.",
+    "implementation": "DynamicsHead predicts next-decision trunk embedding from current trunk + chosen action features, trained BYOL-style (stop-gradient target, no negative samples needed) against the true next decision within the same trace file (ptcg/train/dataset.py's load_paired_records)."
+  },
+  "map_elites_double_oracle": {
+    "seed_archetypes": ["rocket_mewtwo", "lucario_fighting", "grimmsnarl (Marnie's Grimmsnarl ex)", "kangaskhan (Mega Kangaskhan ex)", "dragapult (Dragapult ex)"],
+    "seed_source": "All real decklists captured from the live ladder this session (Weeks 4-5's pull), each the highest-real-leaderboard-rank example available -- not invented.",
+    "archive_size": 11,
+    "rounds": 6,
+    "mutations_per_round": 3,
+    "key_finding": "seed:kangaskhan has worst-case 0.4125 (vs Crustle wall) using the unmodified existing heuristic -- the best worst-case found by ANY deck this entire session, including every patched/mutated lucario_fighting and rocket_mewtwo variant.",
+    "double_oracle_equilibrium": "~78% combined weight on Kangaskhan-lineage decks (kangaskhan:r0 50.7% + seed:kangaskhan 26.4% + kangaskhan:r0 22.9%), 0% on all Dragapult variants and rocket_mewtwo.",
+    "novel_design_detail": "The real Kangaskhan decklist runs Crustle itself (4 copies) alongside Mega Kangaskhan ex -- answering the ex-counter problem directly (play both the win condition and the counter to what counters it) rather than avoiding it, a technique no local single-deck search this session would have found."
+  },
+  "kangaskhan_crustle_decisive_bench": {
+    "games_per_pair": 150,
+    "policy": "unmodified existing heuristic, no new training",
+    "results": {
+      "vs_lucario_fighting_heuristic_LIVE_SUBMISSION": {"a_winrate": 0.6067, "ci95": [0.5268, 0.6812], "verdict": "REAL WIN, CI excludes 50%"},
+      "vs_lucario_fighting_router": {"a_winrate": 0.72, "ci95": [0.6433, 0.7857], "verdict": "REAL WIN, CI excludes 50%"},
+      "vs_lucario_fighting_bc_text": {"a_winrate": 0.5733, "ci95": [0.4933, 0.6497], "verdict": "favorable point estimate, CI edge-touches 50%"},
+      "vs_greedy": {"a_winrate": 0.5467, "ci95": [0.4668, 0.6242]},
+      "vs_first": {"a_winrate": 0.5633, "ci95": [0.4834, 0.6401]},
+      "vs_crustle_wall": {"a_winrate": 0.2567, "ci95": [0.1935, 0.332], "note": "still loses to a dedicated ex-counter wall deck, but far better than lucario_fighting's own 2-11% there"}
+    }
+  },
+  "fuzz_kangaskhan": {"cases": 20000, "illegal_actions": 0, "ok": true},
+  "submission_action_taken": {
+    "deck_registered": "ptcg/decks/kangaskhan_crustle.csv",
+    "submission_rebuilt": true,
+    "policy": "heuristic-v1 (no bc checkpoint)",
+    "self_verification": "passed (isolated self-play game via build_submission.py)",
+    "size_mib": 0.57,
+    "not_yet_submitted_to_kaggle": true
+  },
+  "tests": {
+    "suites": ["test_week0.py", "test_week1.py", "test_week2.py", "test_week3.py", "test_week4.py", "test_week5.py", "test_week6.py", "test_week7.py"],
+    "result": "129 passed, 0 failed"
+  },
+  "strategy_notebook": {
+    "path": "strategy_notebook/ptcg_strategy_report.ipynb",
+    "cells": 39,
+    "status": "fully validated end-to-end against real data, includes the complete narrative through this finding"
+  }
+}

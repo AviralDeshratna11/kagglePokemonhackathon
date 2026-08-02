@@ -39,7 +39,7 @@ from ..core.actions import FEATURE_DIM
 from ..core.carddb import CardDB
 from ..core.enums import N_CARD_TYPE, N_ENERGY
 
-__all__ = ["load_records", "TraceDataset", "collate", "belief_target_for_hand"]
+__all__ = ["load_records", "load_paired_records", "TraceDataset", "collate", "belief_target_for_hand"]
 
 ZONE_NAMES = (
     "my_active", "my_bench", "my_hand", "my_discard", "my_prize",
@@ -47,12 +47,20 @@ ZONE_NAMES = (
 )
 
 
-def load_records(trace_dir: str | Path, max_records: int | None = None, seed: int = 0) -> list[dict[str, Any]]:
+def load_records(
+    trace_dir: str | Path | Sequence[str | Path], max_records: int | None = None, seed: int = 0
+) -> list[dict[str, Any]]:
     """Flatten every episode's decision records, each tagged with its game's
     outcome. Uniformly subsampled across files (not just the first N) so a
-    bounded run still sees the whole corpus's diversity."""
-    trace_dir = Path(trace_dir)
-    files = sorted(trace_dir.glob("*.jsonl.gz"))
+    bounded run still sees the whole corpus's diversity.
+
+    ``trace_dir`` accepts multiple directories (e.g. self-play traces plus a
+    real-replay corpus from ``ptcg/tools/pull_episodes.py``) so a blended
+    training run doesn't need the files physically merged on disk."""
+    dirs = [trace_dir] if isinstance(trace_dir, (str, Path)) else list(trace_dir)
+    files: list[Path] = []
+    for d in dirs:
+        files.extend(sorted(Path(d).glob("*.jsonl.gz")))
     rng = random.Random(seed)
     rng.shuffle(files)
 
@@ -79,6 +87,56 @@ def load_records(trace_dir: str | Path, max_records: int | None = None, seed: in
         rng.shuffle(out)
         out = out[:max_records]
     return out
+
+
+def load_paired_records(
+    trace_dir: str | Path | Sequence[str | Path], max_pairs: int | None = None, seed: int = 0
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Week 7's SPR auxiliary loss needs true temporal adjacency -- "the
+    next decision this same player faces" -- which only survives *within*
+    one trace file, before :func:`load_records` flattens and shuffles
+    everything into one global, order-destroyed list. One trace file is one
+    player's sequential decisions in one game (see
+    ``ptcg/tools/pull_episodes.py``/``ptcg/core/trace.py``), so adjacent
+    lines within a file are exactly the right pairing.
+
+    Returns two index-aligned lists, ``(current, next)``, with the file's
+    final decision dropped (it has no next). Pairs are shuffled (not
+    individual records), so both lists stay aligned."""
+    dirs = [trace_dir] if isinstance(trace_dir, (str, Path)) else list(trace_dir)
+    files: list[Path] = []
+    for d in dirs:
+        files.extend(sorted(Path(d).glob("*.jsonl.gz")))
+    rng = random.Random(seed)
+    rng.shuffle(files)
+
+    pairs: list[tuple[dict[str, Any], dict[str, Any]]] = []
+    for fp in files:
+        with gzip.open(fp, "rt", encoding="utf-8") as fh:
+            lines = fh.readlines()
+        outcome = 0.5
+        decisions: list[dict[str, Any]] = []
+        for line in lines:
+            rec = json.loads(line)
+            t = rec.get("type")
+            if t == "decision":
+                decisions.append(rec)
+            elif t == "outcome":
+                outcome = float(rec.get("outcome", 0.5))
+        for d in decisions:
+            d["_outcome"] = outcome
+        for i in range(len(decisions) - 1):
+            pairs.append((decisions[i], decisions[i + 1]))
+        if max_pairs is not None and len(pairs) >= max_pairs:
+            break
+
+    rng.shuffle(pairs)
+    if max_pairs is not None and len(pairs) > max_pairs:
+        pairs = pairs[:max_pairs]
+    if not pairs:
+        return [], []
+    current, nxt = zip(*pairs)
+    return list(current), list(nxt)
 
 
 def belief_target_for_hand(hand_card_ids: Sequence[int], db: CardDB) -> tuple[np.ndarray, np.ndarray, np.ndarray]:

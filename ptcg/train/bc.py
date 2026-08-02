@@ -28,7 +28,7 @@ from torch.utils.data import DataLoader
 
 from ..agents.network import BeliefSetDMCLite, CardTable, count_parameters
 from ..core.carddb import get_card_db
-from .dataset import TraceDataset, collate, load_records
+from .dataset import TraceDataset, collate, load_paired_records, load_records
 
 __all__ = ["train_bc", "evaluate", "BCTrainResult"]
 
@@ -103,6 +103,23 @@ def evaluate(model: BeliefSetDMCLite, loader: DataLoader, card_mode: str, value_
     }
 
 
+def _spr_loss(model: BeliefSetDMCLite, cur_batch, cur_targets, next_batch) -> torch.Tensor:
+    """Week 7 SPR-lite: predict the next-decision trunk embedding from the
+    current trunk + the chosen action's feature vector, trained against a
+    stop-gradient target -- see ``DynamicsHead``'s docstring for why this
+    shape (BYOL-style, no negative samples needed)."""
+    cur_out = model(cur_batch)
+    with torch.no_grad():
+        next_trunk = model(next_batch)["trunk"].detach()
+
+    chosen_mask = cur_targets["chosen_mask"]
+    denom = chosen_mask.sum(dim=-1, keepdim=True).clamp(min=1.0)
+    action_feat = (cur_batch.option_features * chosen_mask.unsqueeze(-1)).sum(dim=1) / denom
+
+    pred_next_trunk = model.dynamics_head(cur_out["trunk"], action_feat)
+    return 1.0 - F.cosine_similarity(pred_next_trunk, next_trunk, dim=-1).mean()
+
+
 def train_bc(
     records: list[dict[str, Any]],
     table: CardTable,
@@ -115,6 +132,9 @@ def train_bc(
     value_weight: float = 0.5,
     belief_weight: float = 0.3,
     seed: int = 0,
+    use_spr: bool = False,
+    spr_pairs: tuple[list[dict[str, Any]], list[dict[str, Any]]] | None = None,
+    spr_weight: float = 0.1,
 ) -> tuple[BeliefSetDMCLite, BCTrainResult]:
     torch.manual_seed(seed)
     g = torch.Generator().manual_seed(seed)
@@ -134,14 +154,32 @@ def train_bc(
     train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True, collate_fn=_collate)
     val_loader = DataLoader(val_ds, batch_size=batch_size, shuffle=False, collate_fn=_collate)
 
-    model = BeliefSetDMCLite(card_mode=card_mode, n_cards=table.n_cards)
+    model = BeliefSetDMCLite(card_mode=card_mode, n_cards=table.n_cards, use_spr=use_spr)
     opt = torch.optim.Adam(model.parameters(), lr=lr)
+
+    spr_gen = None
+    if use_spr and spr_pairs and spr_pairs[0]:
+        cur_records, next_records = spr_pairs
+        cur_ds = TraceDataset(cur_records, table, db, card_mode)
+        next_ds = TraceDataset(next_records, table, db, card_mode)
+        # Pairs were shuffled together at the list level (see
+        # load_paired_records); both loaders must stay unshuffled here or
+        # cur[i]/next[i] would no longer be the same original pair.
+        cur_loader = DataLoader(cur_ds, batch_size=batch_size, shuffle=False, collate_fn=_collate)
+        next_loader = DataLoader(next_ds, batch_size=batch_size, shuffle=False, collate_fn=_collate)
+
+        def _spr_batches():
+            while True:
+                for (cb, ct), (nb, _) in zip(cur_loader, next_loader):
+                    yield cb, ct, nb
+
+        spr_gen = _spr_batches()
 
     result = BCTrainResult()
     for epoch in range(epochs):
         model.train()
         t0 = time.time()
-        running = {"policy": 0.0, "value": 0.0, "belief": 0.0, "n": 0}
+        running = {"policy": 0.0, "value": 0.0, "belief": 0.0, "spr": 0.0, "n": 0}
         for batch, targets in train_loader:
             opt.zero_grad()
             out = model(batch)
@@ -149,6 +187,14 @@ def train_bc(
             vloss = F.binary_cross_entropy(out["value"], targets["value"])
             bloss = _belief_loss(out["belief"], targets)
             loss = ploss + value_weight * vloss + belief_weight * bloss
+
+            sloss_val = 0.0
+            if spr_gen is not None:
+                cb, ct, nb = next(spr_gen)
+                sloss = _spr_loss(model, cb, ct, nb)
+                loss = loss + spr_weight * sloss
+                sloss_val = sloss.item()
+
             loss.backward()
             opt.step()
 
@@ -156,6 +202,7 @@ def train_bc(
             running["policy"] += ploss.item() * bsz
             running["value"] += vloss.item() * bsz
             running["belief"] += bloss.item() * bsz
+            running["spr"] += sloss_val * bsz
             running["n"] += bsz
 
         val_metrics = evaluate(model, val_loader, card_mode, value_weight, belief_weight)
@@ -165,6 +212,7 @@ def train_bc(
             "train_policy_loss": running["policy"] / n,
             "train_value_loss": running["value"] / n,
             "train_belief_loss": running["belief"] / n,
+            "train_spr_loss": running["spr"] / n,
             "seconds": round(time.time() - t0, 2),
             **{f"val_{k}": v for k, v in val_metrics.items()},
         }
@@ -173,7 +221,7 @@ def train_bc(
             f"[{card_mode}] epoch {epoch}: train policy={epoch_stats['train_policy_loss']:.4f} "
             f"val policy={val_metrics['policy_loss']:.4f} val_acc={val_metrics['policy_top1_acc']:.3f} "
             f"val_value={val_metrics['value_loss']:.4f} val_belief_mae={val_metrics['belief_mae']:.4f} "
-            f"({epoch_stats['seconds']}s)"
+            f"spr={epoch_stats['train_spr_loss']:.4f} ({epoch_stats['seconds']}s)"
         )
 
     return model, result
@@ -181,7 +229,7 @@ def train_bc(
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--traces", default="artifacts/traces/selfplay_v1")
+    ap.add_argument("--traces", default="artifacts/traces/selfplay_v1", help="comma-separated trace directories")
     ap.add_argument("--card-mode", choices=["text", "onehot"], default="text")
     ap.add_argument("--max-records", type=int, default=60000)
     ap.add_argument("--epochs", type=int, default=6)
@@ -189,17 +237,28 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--lr", type=float, default=1e-3)
     ap.add_argument("--out", default=None)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--use-spr", action="store_true", help="Week 7: add the self-predictive auxiliary loss")
+    ap.add_argument("--spr-weight", type=float, default=0.1)
+    ap.add_argument("--spr-max-pairs", type=int, default=40000)
     args = ap.parse_args(argv)
 
     db = get_card_db()
-    print(f"loading up to {args.max_records} records from {args.traces} ...")
-    records = load_records(args.traces, max_records=args.max_records, seed=args.seed)
+    trace_dirs = [d.strip() for d in args.traces.split(",") if d.strip()]
+    print(f"loading up to {args.max_records} records from {trace_dirs} ...")
+    records = load_records(trace_dirs, max_records=args.max_records, seed=args.seed)
     print(f"loaded {len(records)} records")
+
+    spr_pairs = None
+    if args.use_spr:
+        cur, nxt = load_paired_records(trace_dirs, max_pairs=args.spr_max_pairs, seed=args.seed)
+        print(f"loaded {len(cur)} SPR (current, next) pairs")
+        spr_pairs = (cur, nxt)
 
     table = CardTable.build(db, with_text=(args.card_mode == "text"))
     model, result = train_bc(
         records, table, db, args.card_mode,
         epochs=args.epochs, batch_size=args.batch_size, lr=args.lr, seed=args.seed,
+        use_spr=args.use_spr, spr_pairs=spr_pairs, spr_weight=args.spr_weight,
     )
     print("params:", count_parameters(model))
 
@@ -217,6 +276,7 @@ def main(argv: list[str] | None = None) -> int:
             "card_struct": table.struct,
             "card_text": table.text,
             "history": result.as_dict(),
+            "use_spr": args.use_spr,
         },
         out,
     )

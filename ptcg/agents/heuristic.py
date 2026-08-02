@@ -23,6 +23,7 @@ loop-guarding or budgeting.
 
 from __future__ import annotations
 
+from collections import Counter
 from dataclasses import dataclass
 from typing import Sequence
 
@@ -64,6 +65,22 @@ class HeuristicConfig:
     #: A Basic that is the pre-evolution of something in our deck is worth far
     #: more on the bench than a dead-end Basic.
     evolution_base_bonus: float = 260.0
+    #: Week 6: a candidate Pokemon shares a trainer-affiliation tag (e.g.
+    #: "Team Rocket's") with a card already in play or hand whose own
+    #: attack/ability cares about that tag's board count
+    #: (``Role.BOARD_SCALING``/``Role.BOARD_GATED``). Deck-agnostic --
+    #: derived from the card's own name and rules text, not hardcoded to any
+    #: one archetype. Without this the scorer has no reason to build toward
+    #: such a payoff at all, which measurably collapsed win rate for a real
+    #: adopted deck this session (Week 5's ``rocket_heuristic`` bench).
+    board_synergy_bonus: float = 320.0
+    #: Week 8: benching an otherwise-unremarkable Basic late in the game,
+    #: purely to thin it out of the remaining draw pile, when bench space is
+    #: free and nothing else is competing for the slot.
+    bench_thinning_bonus: float = 70.0
+    #: Turn number after which bench-thinning kicks in -- too early and it
+    #: competes with genuine board development for the same bonus.
+    bench_thinning_min_turn: int = 8
 
     # -- main phase ordering ----------------------------------------------
     ability_base: float = 900.0
@@ -103,11 +120,21 @@ class HeuristicConfig:
     # -- resources ---------------------------------------------------------
     draw_when_hand_below: int = 5
     draw_bonus: float = 320.0
-    search_bonus: float = 240.0
+    #: Week 8: raised above ``draw_bonus``. "Deck thinning" -- searching your
+    #: deck for a specific card -- is strictly better than a same-size raw
+    #: draw when both are legal in the same decision, because search removes
+    #: dead cards from future draws instead of just refunding hand size. The
+    #: pre-Week-8 default (240, below draw_bonus's 320) had this backwards.
+    search_bonus: float = 340.0
     gust_bonus: float = 500.0
     energy_accel_bonus: float = 260.0
     #: Never burn the once-per-turn Supporter on a marginal effect early.
     supporter_discount_when_full_hand: float = 260.0
+    #: Week 8: a Judge/Iono-style "shuffle your hand into your deck"
+    #: Supporter is sitting in hand. Anything else played or attached before
+    #: it is spent for free -- it would otherwise just be shuffled away with
+    #: no benefit to holding it.
+    pre_shuffle_clear_bonus: float = 90.0
 
     # -- retreat -----------------------------------------------------------
     retreat_if_stuck_bonus: float = 900.0
@@ -158,6 +185,12 @@ class HeuristicPolicy:
             for cid in set(self._deck)
             if (c := db.card(cid)) and c.is_basic_energy
         }
+        # Week 8: total copies of each card name in the full 60-card deck,
+        # used by the recovery-aware discard scorer to tell a redundant
+        # discard from the last reachable copy of something important.
+        self._deck_name_counts: dict[str, int] = Counter(
+            c.name for cid in self._deck if (c := db.card(cid)) is not None
+        )
 
     # -- Policy protocol ----------------------------------------------------
 
@@ -232,7 +265,7 @@ class HeuristicPolicy:
             elif t == OptionType.RETREAT:
                 out.append(self._score_retreat(view))
             elif t == OptionType.DISCARD:
-                out.append(-50.0)
+                out.append(self._score_discard(view, c))
             else:
                 out.append(10.0)
         return out
@@ -375,6 +408,8 @@ class HeuristicPolicy:
             # Do not volunteer extra prizes onto the bench.
             s -= 90.0 * (card.prizes_when_koed - 1)
             s += card.hp * 0.12
+            s += self._board_synergy_bonus(view, card)
+            s += self._bench_thinning_bonus(view, card)
             return s
 
         roles = card.roles
@@ -423,7 +458,65 @@ class HeuristicPolicy:
             s -= 350.0
         if card.ace_spec:
             s += 120.0  # single copy: use it, but not before cheaper outs
+        s += self._pre_shuffle_clearing_bonus(view)
         return s
+
+    def _board_synergy_bonus(self, view: ObsView, card: Card) -> float:
+        """General, deck-agnostic bonus for building board presence of a
+        trainer-affiliation "tribe" (e.g. "Team Rocket's") when the team
+        already has a card whose own attack/ability cares about that tag's
+        board count (``Role.BOARD_SCALING``/``Role.BOARD_GATED``).
+
+        Purely derived from ``Card.affiliation`` (name-parsed) and the
+        text-pattern roles already tagged on every card/attack -- no card
+        IDs, no archetype names, anywhere in this method. This is what lets
+        the same scorer pilot a "go wide with your tribe" deck sensibly
+        without ever having been written *for* that deck.
+        """
+        aff = card.affiliation
+        if not aff:
+            return 0.0
+
+        me = view.me
+        cares = False
+        for pk in me.in_play():
+            c = pk.card
+            if c is not None and c.affiliation == aff and (Role.BOARD_SCALING in c.roles or Role.BOARD_GATED in c.roles):
+                cares = True
+                break
+        if not cares:
+            for c in me.hand_cards:
+                if c is not None and c.affiliation == aff and (Role.BOARD_SCALING in c.roles or Role.BOARD_GATED in c.roles):
+                    cares = True
+                    break
+        return self.cfg.board_synergy_bonus if cares else 0.0
+
+    def _bench_thinning_bonus(self, view: ObsView, card: Card) -> float:
+        """Late-game, benching an otherwise plain Basic purely to remove it
+        from the remaining draw pile is worth a small bonus once bench space
+        stops being a scarce resource for genuine board development."""
+        cfg = self.cfg
+        if view.turn < cfg.bench_thinning_min_turn:
+            return 0.0
+        if not card.basic or card.has_ability or card.name in self._evolution_bases:
+            return 0.0
+        return cfg.bench_thinning_bonus
+
+    def _pre_shuffle_clearing_bonus(self, view: ObsView) -> float:
+        """A Judge/Iono-style "shuffle your hand into your deck" Supporter
+        (``Role.HAND_SHUFFLE``) is sitting in hand. Anything else played or
+        attached before it is spent for free -- it would otherwise just get
+        shuffled away with no benefit to holding it.
+
+        Scoped to Supporters specifically (not any card whose text happens
+        to match, e.g. an attack with the same wording) since the trigger
+        this bonus reasons about is "still unplayed in my hand right now".
+        """
+        me = view.me
+        for c in me.hand_cards:
+            if c is not None and c.is_supporter and Role.HAND_SHUFFLE in c.roles:
+                return self.cfg.pre_shuffle_clear_bonus
+        return 0.0
 
     def _gust_value(self, view: ObsView) -> float:
         """How much is dragging up a benched Pokemon worth right now?"""
@@ -513,6 +606,7 @@ class HeuristicPolicy:
         # buries seven Energy on a Pokemon that needed four.
         if gain <= 0.0 and self._min_shortfall(target, target.energies) == 0:
             return cfg.overload_penalty
+        s += self._pre_shuffle_clearing_bonus(view)
         return s
 
     def _min_shortfall(self, pk: PokemonView, energies: Sequence[int]) -> int:
@@ -583,6 +677,76 @@ class HeuristicPolicy:
         if a.card is not None:
             s -= 70.0 * a.card.retreat_cost
         return s
+
+    # -- discard (Week 8: recovery-aware) --------------------------------
+
+    def _copies_remaining_in_deck(self, view: ObsView, name: str) -> int:
+        """How many copies of ``name`` are still un-accounted-for in the
+        remaining deck pile: total copies in our 60-card deck minus every
+        copy we can currently see in hand, discard, in play, or (when
+        revealed) our own prizes.
+
+        This double-counts a copy that has evolved into something else (the
+        base stage's own name stops appearing in ``in_play()``), so it is an
+        estimate, not exact tracking -- consistent with the rest of this
+        file's stance that the shape of the incentive matters more than
+        precision (see ``_power_value``'s docstring).
+        """
+        total = self._deck_name_counts.get(name, 0)
+        if total == 0:
+            return 0
+        me = view.me
+        seen = 0
+        for c in me.hand_cards:
+            if c is not None and c.name == name:
+                seen += 1
+        for d in me.discard:
+            dc = self.db.card(d.get("id"))
+            if dc is not None and dc.name == name:
+                seen += 1
+        for pk in me.in_play():
+            if pk.card is not None and pk.card.name == name:
+                seen += 1
+        for p in me.prize:
+            if p is not None:
+                pc = self.db.card(p.get("id"))
+                if pc is not None and pc.name == name:
+                    seen += 1
+        return max(0, total - seen)
+
+    def _recovery_available(self, view: ObsView) -> bool:
+        """A card that can fetch something back from the discard pile is
+        currently in hand (``Role.RECOVERY``). Only checks hand, not the
+        unseen remaining deck, since that is all we can actually know."""
+        return any(
+            c is not None and Role.RECOVERY in c.roles for c in view.me.hand_cards
+        )
+
+    def _score_discard(self, view: ObsView, c: ActionCandidate) -> float:
+        """Week 8: "Track Your Recovery" -- a discard should cost more when
+        it is the last reachable copy of something important than when it
+        is a redundant duplicate or one we can fetch back.
+
+        Replaces the pre-Week-8 flat ``-50.0`` penalty, which treated every
+        discard identically regardless of recoverability.
+        """
+        card = c.card
+        if card is None:
+            return -50.0
+
+        hand_dupes = sum(
+            1 for x in view.me.hand_cards if x is not None and x.name == card.name
+        ) - 1
+        remaining_in_deck = self._copies_remaining_in_deck(view, card.name)
+        if remaining_in_deck > 0 or hand_dupes > 0:
+            return -25.0  # redundant: another reachable copy still exists
+
+        if self._recovery_available(view):
+            return -40.0  # last copy, but fetchable back from the discard
+
+        # The last reachable copy, gone for good -- scale the cost with how
+        # much this specific card is actually worth.
+        return -50.0 - self._card_value(view, card)
 
     # ------------------------------------------------------------------
     # Yes / No
@@ -670,6 +834,29 @@ class HeuristicPolicy:
     # Card selects (the long tail: ~30 contexts)
     # ------------------------------------------------------------------
 
+    def _all_other_copies_prized(self, view: ObsView, name: str) -> bool:
+        """True only when every copy of ``name`` *besides the one being
+        valued* is confirmed sitting in our own prizes (revealed via
+        ``view.me.prize``) -- i.e. we know for certain there is no backup
+        copy left to draw or fetch this game.
+
+        Prize contents are hidden by the game's own rules until taken, so
+        this only ever fires on the rare occasions the engine's obs actually
+        reveals one (e.g. after a card effect looks at prizes); it degrades
+        to "no discount" otherwise, which is the safe default.
+        """
+        total = self._deck_name_counts.get(name, 0)
+        if total <= 1:
+            return False  # nothing "else" to be prized
+        prized = sum(
+            1
+            for p in view.me.prize
+            if p is not None
+            and (pc := self.db.card(p.get("id"))) is not None
+            and pc.name == name
+        )
+        return prized >= total - 1
+
     def _card_value(self, view: ObsView, card: Card | None) -> float:
         """Generic desirability of holding/keeping a card, in arbitrary units."""
         if card is None:
@@ -701,11 +888,14 @@ class HeuristicPolicy:
             if Role.BALL in roles or Role.SEARCH in roles:
                 v += 14.0
             if Role.GUST in roles:
-                v += 16.0
+                # Week 8: prized-resource awareness -- don't overvalue this
+                # copy's "there's always another one coming" assumption when
+                # every backup copy is confirmed locked in our own prizes.
+                v += 16.0 * (0.3 if self._all_other_copies_prized(view, card.name) else 1.0)
             if Role.RECOVERY in roles:
                 v += 8.0
             if card.ace_spec:
-                v += 20.0
+                v += 20.0 * (0.3 if self._all_other_copies_prized(view, card.name) else 1.0)
         return v
 
     def _score_card_context(self, view: ObsView, c: ActionCandidate, ctx: int) -> float:

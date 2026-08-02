@@ -1,0 +1,9 @@
+{
+  "observation_fuzz": {
+    "cases": 20000,
+    "failures": [],
+    "crashes": [],
+    "illegal_actions": 0,
+    "ok": true
+  }
+}
