@@ -24,6 +24,14 @@ dist/
 
 # Noisy tool-run logs
 *.log
+artifacts/week*_onboard_log*.txt
+artifacts/week*_train_log*.txt
+
+# Raw scratch downloads (deleted per-file by pull_and_convert; leftovers on
+# an interrupted run are not meaningful to keep)
+artifacts/onboard_raw_scratch_*/
+artifacts/kaggle_raw_scratch/
+artifacts/kaggle_pull/*.zip
 
 # Old superseded package snapshot (see session notes)
 ptcg_stub_backup/

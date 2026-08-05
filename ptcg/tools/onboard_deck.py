@@ -91,12 +91,18 @@ def onboard_deck(
     report: dict[str, Any] = {"deck": deck_name, "baseline_deck": baseline_deck}
     t0 = time.time()
 
+    def _write_report() -> None:
+        Path(f"{out_prefix}_report.json").parent.mkdir(parents=True, exist_ok=True)
+        Path(f"{out_prefix}_report.json").write_text(json.dumps(report, indent=2, default=str), encoding="utf-8")
+        print(f"wrote {out_prefix}_report.json")
+
     print(f"[1/5] legality + smoke test: {deck_name}")
     step1 = _legality_and_smoke(deck_name)
     report["legality_and_smoke"] = step1
     if not step1["legal"] or not step1.get("smoke_ok", False):
         report["stopped_at"] = "legality_and_smoke"
         report["seconds"] = round(time.time() - t0, 1)
+        _write_report()
         return report
 
     # Defaults to the canonical per-deck checkpoint path -- callers doing a
@@ -107,6 +113,14 @@ def onboard_deck(
     bc_checkpoint = bc_checkpoint_path or f"artifacts/bc_{deck_name}.pt"
 
     if pull_days and leaderboard_csv and archetype_anchor_cards:
+        # Accept either full dataset slugs or bare YYYY-MM-DD dates -- a bare
+        # date silently produced an invalid slug once (list_episode_files
+        # raised, the per-day try/except swallowed it, and the pull reported
+        # 0 files scanned with no visible error until the raw summary was
+        # inspected by hand). Normalizing here removes that failure mode.
+        _slug_prefix = "kaggle/pokemon-tcg-ai-battle-episodes-"
+        pull_days = [d if d.startswith("kaggle/") else f"{_slug_prefix}{d}" for d in pull_days]
+
         print(f"[2/5] deck-matched pull: {len(pull_days)} day(s), anchors={archetype_anchor_cards}")
         target_names = pull_episodes.load_target_names(leaderboard_csv, top_n=150)
         pull_summary = pull_episodes.pull_and_convert(
@@ -127,6 +141,7 @@ def onboard_deck(
         report["stopped_at"] = "training"
         report["training"] = {"error": f"no trace files in {traces_dir}"}
         report["seconds"] = round(time.time() - t0, 1)
+        _write_report()
         return report
 
     print(f"[3/5] BC training -> {bc_checkpoint}")
@@ -160,9 +175,7 @@ def onboard_deck(
     )
 
     report["seconds"] = round(time.time() - t0, 1)
-    Path(f"{out_prefix}_report.json").parent.mkdir(parents=True, exist_ok=True)
-    Path(f"{out_prefix}_report.json").write_text(json.dumps(report, indent=2, default=str), encoding="utf-8")
-    print(f"wrote {out_prefix}_report.json")
+    _write_report()
     return report
 
 

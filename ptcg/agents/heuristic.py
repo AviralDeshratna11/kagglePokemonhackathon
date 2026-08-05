@@ -120,12 +120,15 @@ class HeuristicConfig:
     # -- resources ---------------------------------------------------------
     draw_when_hand_below: int = 5
     draw_bonus: float = 320.0
-    #: Week 8: raised above ``draw_bonus``. "Deck thinning" -- searching your
-    #: deck for a specific card -- is strictly better than a same-size raw
-    #: draw when both are legal in the same decision, because search removes
-    #: dead cards from future draws instead of just refunding hand size. The
-    #: pre-Week-8 default (240, below draw_bonus's 320) had this backwards.
-    search_bonus: float = 340.0
+    #: Week 8 raised this above ``draw_bonus`` on the theory that deck
+    #: thinning beats a same-size raw draw. Week 9: reverted to 240 after
+    #: the real Kaggle ladder scored the whole Week-8 bundle ~18 points
+    #: *lower* than the build without it (539.6 -> 521.8) -- we have no
+    #: per-feature attribution for that regression, so the honest response
+    #: is to restore the real-evidence-backed value, not keep an untested
+    #: one. ``enable_expert_strategy_tuning`` below still exists for a
+    #: future, properly isolated real-ladder A/B of this specific knob.
+    search_bonus: float = 240.0
     gust_bonus: float = 500.0
     energy_accel_bonus: float = 260.0
     #: Never burn the once-per-turn Supporter on a marginal effect early.
@@ -133,8 +136,22 @@ class HeuristicConfig:
     #: Week 8: a Judge/Iono-style "shuffle your hand into your deck"
     #: Supporter is sitting in hand. Anything else played or attached before
     #: it is spent for free -- it would otherwise just be shuffled away with
-    #: no benefit to holding it.
+    #: no benefit to holding it. Only takes effect when
+    #: ``enable_expert_strategy_tuning`` is True (see below).
     pre_shuffle_clear_bonus: float = 90.0
+
+    # -- Week 8 expert-strategy tuning (default OFF -- see Week 9 note) ----
+    #: Week 8 bundled four behaviors (recovery-aware discarding, pre-shuffle
+    #: clearing, prized-resource discounting, bench thinning) into one real
+    #: submission that scored ~18 points *lower* on the live Kaggle ladder
+    #: than the build without them (539.6 -> 521.8), despite looking
+    #: locally neutral-to-favorable (local A/B CIs crossed 50% on both
+    #: decks). Real ladder evidence outranks a local CI that merely fails
+    #: to exclude 50%. Defaulting this off restores the actual
+    #: 539.6-scoring behavior. The code stays -- tested, reversible, and
+    #: available for a future *per-feature* real-ladder A/B (the rigor this
+    #: bundle skipped) -- it just no longer ships live by default.
+    enable_expert_strategy_tuning: bool = False
 
     # -- retreat -----------------------------------------------------------
     retreat_if_stuck_bonus: float = 900.0
@@ -494,8 +511,14 @@ class HeuristicPolicy:
     def _bench_thinning_bonus(self, view: ObsView, card: Card) -> float:
         """Late-game, benching an otherwise plain Basic purely to remove it
         from the remaining draw pile is worth a small bonus once bench space
-        stops being a scarce resource for genuine board development."""
+        stops being a scarce resource for genuine board development.
+
+        Week 9: gated off by default -- see
+        ``HeuristicConfig.enable_expert_strategy_tuning``'s docstring.
+        """
         cfg = self.cfg
+        if not cfg.enable_expert_strategy_tuning:
+            return 0.0
         if view.turn < cfg.bench_thinning_min_turn:
             return 0.0
         if not card.basic or card.has_ability or card.name in self._evolution_bases:
@@ -511,7 +534,12 @@ class HeuristicPolicy:
         Scoped to Supporters specifically (not any card whose text happens
         to match, e.g. an attack with the same wording) since the trigger
         this bonus reasons about is "still unplayed in my hand right now".
+
+        Week 9: gated off by default -- see
+        ``HeuristicConfig.enable_expert_strategy_tuning``'s docstring.
         """
+        if not self.cfg.enable_expert_strategy_tuning:
+            return 0.0
         me = view.me
         for c in me.hand_cards:
             if c is not None and c.is_supporter and Role.HAND_SHUFFLE in c.roles:
@@ -727,9 +755,14 @@ class HeuristicPolicy:
         it is the last reachable copy of something important than when it
         is a redundant duplicate or one we can fetch back.
 
-        Replaces the pre-Week-8 flat ``-50.0`` penalty, which treated every
-        discard identically regardless of recoverability.
+        Week 9: gated off by default -- see
+        ``HeuristicConfig.enable_expert_strategy_tuning``'s docstring. When
+        disabled, falls back to the flat ``-50.0`` penalty, which is the
+        real-evidence-backed, 539.6-scoring behavior.
         """
+        if not self.cfg.enable_expert_strategy_tuning:
+            return -50.0
+
         card = c.card
         if card is None:
             return -50.0
@@ -844,7 +877,12 @@ class HeuristicPolicy:
         this only ever fires on the rare occasions the engine's obs actually
         reveals one (e.g. after a card effect looks at prizes); it degrades
         to "no discount" otherwise, which is the safe default.
+
+        Week 9: gated off by default -- see
+        ``HeuristicConfig.enable_expert_strategy_tuning``'s docstring.
         """
+        if not self.cfg.enable_expert_strategy_tuning:
+            return False
         total = self._deck_name_counts.get(name, 0)
         if total <= 1:
             return False  # nothing "else" to be prized

@@ -6,6 +6,15 @@ late-game bench thinning.
 Follows test_week6.py's style: real cards and real registered decks, plus
 small stub views that exercise only the attributes each scorer method
 actually reads.
+
+Week 9 update: the real Kaggle ladder scored the whole Week-8 bundle ~18
+points *lower* than the build without it (539.6 -> 521.8), so
+``HeuristicConfig.enable_expert_strategy_tuning`` now defaults to False and
+``search_bonus`` was reverted to its pre-Week-8 value. The behaviors below
+are still real and still tested -- just opt-in via that flag rather than
+live by default. Tests that exercise the Week-8 behaviors now construct
+``HeuristicConfig(enable_expert_strategy_tuning=True)`` explicitly; new
+tests confirm the *default* reproduces the flat/zero pre-Week-8 behavior.
 """
 
 from __future__ import annotations
@@ -60,8 +69,19 @@ class _FakeView:
 
 
 class TestSearchBeforeDraw:
-    def test_search_bonus_ranks_above_draw_bonus(self):
+    def test_default_matches_real_evidence_backed_value(self):
+        """Week 8 raised search_bonus above draw_bonus on theory; Week 9
+        reverted it after the real ladder scored that bundle lower. The
+        default must match the 539.6-scoring value, not the theory."""
         cfg = HeuristicConfig()
+        assert cfg.search_bonus == 240.0
+        assert cfg.search_bonus < cfg.draw_bonus
+
+    def test_knob_remains_settable_for_a_future_isolated_ab(self):
+        """The mechanism itself wasn't proven wrong -- only the untested
+        bundle was. Explicitly requesting the old value must still work,
+        for a future, properly isolated real-ladder test of this one knob."""
+        cfg = HeuristicConfig(search_bonus=340.0)
         assert cfg.search_bonus > cfg.draw_bonus
 
 
@@ -83,22 +103,27 @@ class TestHandShuffleRole:
 class TestPreShuffleClearingBonus:
     def test_bonus_when_hand_shuffle_supporter_in_hand(self, db):
         deck = load_deck("kangaskhan_crustle")
-        policy = HeuristicPolicy(deck, db, HeuristicConfig())
+        cfg = HeuristicConfig(enable_expert_strategy_tuning=True)
+        policy = HeuristicPolicy(deck, db, cfg)
         view = _FakeView(_FakeMe(hand=[db.card(LILLIES_DETERMINATION), db.card(SWITCH)]))
-        assert policy._pre_shuffle_clearing_bonus(view) == pytest.approx(
-            HeuristicConfig().pre_shuffle_clear_bonus
-        )
+        assert policy._pre_shuffle_clearing_bonus(view) == pytest.approx(cfg.pre_shuffle_clear_bonus)
 
     def test_no_bonus_without_hand_shuffle_supporter(self, db):
         deck = load_deck("kangaskhan_crustle")
-        policy = HeuristicPolicy(deck, db, HeuristicConfig())
+        policy = HeuristicPolicy(deck, db, HeuristicConfig(enable_expert_strategy_tuning=True))
         view = _FakeView(_FakeMe(hand=[db.card(SWITCH), db.card(HILDA)]))
+        assert policy._pre_shuffle_clearing_bonus(view) == 0.0
+
+    def test_disabled_by_default_even_with_supporter_in_hand(self, db):
+        deck = load_deck("kangaskhan_crustle")
+        policy = HeuristicPolicy(deck, db, HeuristicConfig())
+        view = _FakeView(_FakeMe(hand=[db.card(LILLIES_DETERMINATION), db.card(SWITCH)]))
         assert policy._pre_shuffle_clearing_bonus(view) == 0.0
 
 
 class TestRecoveryAwareDiscard:
     def _policy(self, db, deck_ids):
-        return HeuristicPolicy(deck_ids, db, HeuristicConfig())
+        return HeuristicPolicy(deck_ids, db, HeuristicConfig(enable_expert_strategy_tuning=True))
 
     def test_redundant_copy_scores_mild_penalty(self, db):
         # 4 copies of SWITCH in the deck; 2 currently visible in hand.
@@ -133,19 +158,44 @@ class TestRecoveryAwareDiscard:
         cand = _FakeCandidate(None)
         assert policy._score_discard(view, cand) == -50.0
 
+    def test_disabled_by_default_uses_flat_penalty_even_for_last_copy(self, db):
+        """The real-evidence-backed default (flag off) must reproduce the
+        exact 539.6-scoring behavior: every discard is -50.0 flat,
+        regardless of recoverability."""
+        policy = HeuristicPolicy([UNFAIR_STAMP] + [1], db, HeuristicConfig())
+        hand = [db.card(UNFAIR_STAMP)]
+        view = _FakeView(_FakeMe(hand=hand))
+        cand = _FakeCandidate(db.card(UNFAIR_STAMP))
+        assert policy._score_discard(view, cand) == -50.0
+
 
 class TestPrizedResourceAwareness:
     GUST_SUPPORTER = 1182  # Boss's Orders, Role.GUST
 
     def test_no_discount_when_prizes_unrevealed(self, db):
         deck = [self.GUST_SUPPORTER] * 4 + [1]
-        policy = HeuristicPolicy(deck, db, HeuristicConfig())
+        policy = HeuristicPolicy(deck, db, HeuristicConfig(enable_expert_strategy_tuning=True))
         view = _FakeView(_FakeMe(prize=[None, None]))
         assert policy._all_other_copies_prized(view, db.card(self.GUST_SUPPORTER).name) is False
 
-    def test_discount_only_when_every_other_copy_confirmed_prized(self, db):
+    def test_disabled_by_default_never_discounts(self, db):
         deck = [self.GUST_SUPPORTER] * 4 + [1]
         policy = HeuristicPolicy(deck, db, HeuristicConfig())
+        name = db.card(self.GUST_SUPPORTER).name
+        view_all_prized = _FakeView(
+            _FakeMe(
+                prize=[
+                    {"id": self.GUST_SUPPORTER},
+                    {"id": self.GUST_SUPPORTER},
+                    {"id": self.GUST_SUPPORTER},
+                ]
+            )
+        )
+        assert policy._all_other_copies_prized(view_all_prized, name) is False
+
+    def test_discount_only_when_every_other_copy_confirmed_prized(self, db):
+        deck = [self.GUST_SUPPORTER] * 4 + [1]
+        policy = HeuristicPolicy(deck, db, HeuristicConfig(enable_expert_strategy_tuning=True))
         name = db.card(self.GUST_SUPPORTER).name
 
         # Only 2 of the other 3 copies revealed in prize -- must NOT trigger.
@@ -168,7 +218,7 @@ class TestPrizedResourceAwareness:
 
     def test_card_value_discounted_when_all_backups_prized(self, db):
         deck = [self.GUST_SUPPORTER] * 4 + [1]
-        policy = HeuristicPolicy(deck, db, HeuristicConfig())
+        policy = HeuristicPolicy(deck, db, HeuristicConfig(enable_expert_strategy_tuning=True))
         card = db.card(self.GUST_SUPPORTER)
 
         view_unrevealed = _FakeView(_FakeMe())
@@ -194,7 +244,7 @@ class TestBenchThinning:
 
     def test_no_bonus_before_min_turn(self, db):
         deck = [self.BASIC_NO_ABILITY] * 4 + [1]
-        policy = HeuristicPolicy(deck, db, HeuristicConfig())
+        policy = HeuristicPolicy(deck, db, HeuristicConfig(enable_expert_strategy_tuning=True))
 
         class _V:
             turn = 1
@@ -203,22 +253,30 @@ class TestBenchThinning:
 
     def test_bonus_late_game_for_plain_basic(self, db):
         deck = [self.BASIC_NO_ABILITY] * 4 + [1]
-        policy = HeuristicPolicy(deck, db, HeuristicConfig())
+        cfg = HeuristicConfig(enable_expert_strategy_tuning=True)
+        policy = HeuristicPolicy(deck, db, cfg)
 
         class _V:
             turn = 20
 
         card = db.card(self.BASIC_NO_ABILITY)
         assert card.name not in policy._evolution_bases
-        assert policy._bench_thinning_bonus(_V(), card) == pytest.approx(
-            HeuristicConfig().bench_thinning_bonus
-        )
+        assert policy._bench_thinning_bonus(_V(), card) == pytest.approx(cfg.bench_thinning_bonus)
+
+    def test_disabled_by_default_even_late_game(self, db):
+        deck = [self.BASIC_NO_ABILITY] * 4 + [1]
+        policy = HeuristicPolicy(deck, db, HeuristicConfig())
+
+        class _V:
+            turn = 20
+
+        assert policy._bench_thinning_bonus(_V(), db.card(self.BASIC_NO_ABILITY)) == 0.0
 
     def test_no_bonus_for_evolution_base(self, db):
         """A Basic that is the base of our own evolution line is never
         "otherwise-unremarkable" -- thinning it away is a real cost."""
         deck = load_deck("lucario_fighting")
-        policy = HeuristicPolicy(deck, db, HeuristicConfig())
+        policy = HeuristicPolicy(deck, db, HeuristicConfig(enable_expert_strategy_tuning=True))
         assert policy._evolution_bases  # lucario_fighting does evolve
 
         class _V:

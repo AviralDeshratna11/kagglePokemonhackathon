@@ -129,10 +129,16 @@ def deck_bench(
 ) -> dict[str, Any]:
     """Week 6: the general form of Week 5's ``archetype_bench`` -- any newly
     onboarded deck (optionally with its own BC checkpoint) vs. any baseline
-    deck (optionally with its own checkpoint and a confidence-gated router),
-    each side piloting its own deck exactly like two real submissions would.
-    Parameterized so a future deck pivot reuses this bench instead of a new
-    hardcoded copy (``ptcg/tools/onboard_deck.py`` calls this directly)."""
+    deck (optionally with its own checkpoint), each side piloting its own
+    deck exactly like two real submissions would. Parameterized so a future
+    deck pivot reuses this bench instead of a new hardcoded copy
+    (``ptcg/tools/onboard_deck.py`` calls this directly).
+
+    Week 9: a confidence-gated ``RouterPolicy`` (heuristic + BC) is built
+    for *either* side whenever that side has a BC checkpoint -- previously
+    only ``baseline_deck`` got one, so there was no way to see whether a
+    router beats a raw heuristic/BC split for the deck actually being
+    onboarded."""
     from ..tools.deck_search import build_crustle_test_deck
 
     db = get_card_db()
@@ -151,6 +157,13 @@ def deck_bench(
             _shell(lambda d, ckpt=new_bc_checkpoint: load_bc_policy(ckpt, d, db), new_d),
             new_d,
         )
+        if include_router:
+            def make_new_router(d, ckpt=new_bc_checkpoint):
+                net = load_bc_policy(ckpt, d, db)
+                heur = HeuristicPolicy(d, db, HeuristicConfig())
+                return RouterPolicy(d, net, heur)
+
+            entries[f"{new_deck}_router"] = (_shell(make_new_router, new_d), new_d)
     if baseline_bc_checkpoint:
         entries[f"{baseline_deck}_bc"] = (
             _shell(lambda d, ckpt=baseline_bc_checkpoint: load_bc_policy(ckpt, d, db), base_d),

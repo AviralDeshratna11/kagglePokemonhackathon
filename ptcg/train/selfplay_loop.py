@@ -58,27 +58,44 @@ def deterministic_check(
     deck: list[int],
     games: int = 60,
     seed: int = 0,
+    cross_deck_targets: dict[str, list[int]] | None = None,
 ) -> dict[str, Any]:
     """The trustworthy number: a real, no-exploration duel against the frozen
     teacher and the heuristic, through the exact same ``SafetyShell`` +
     ``BCPolicy`` path a submission would use. Small ``games`` by design --
     this runs every round, so it has to be cheap; the final gate-check bench
-    (a separate, larger round-robin) is what actually confirms a result."""
+    (a separate, larger round-robin) is what actually confirms a result.
 
-    def shell(policy):
-        return SafetyShell(policy, db, FallbackPolicy(deck), BudgetManager()).act
+    Week 9: ``cross_deck_targets`` (name -> deck_ids) adds one more duel per
+    entry against a heuristic piloting a *different, real* deck. Week 7's
+    self-play run only ever improved against same-deck opponents and that
+    improvement didn't transfer -- this makes "is it transferring yet"
+    visible every round instead of only at the very end.
+    """
 
-    trainee = shell(load_bc_policy(ckpt_path, deck, db))
-    teacher = shell(load_bc_policy(frozen_teacher_ckpt, deck, db))
-    heuristic = shell(HeuristicPolicy(deck, db, HeuristicConfig()))
+    def shell(policy, d):
+        return SafetyShell(policy, db, FallbackPolicy(d), BudgetManager()).act
+
+    trainee = shell(load_bc_policy(ckpt_path, deck, db), deck)
+    teacher = shell(load_bc_policy(frozen_teacher_ckpt, deck, db), deck)
+    heuristic = shell(HeuristicPolicy(deck, db, HeuristicConfig()), deck)
 
     d_teacher = duel("trainee", lambda: trainee, deck, "frozen-teacher", lambda: teacher, deck, games=games, seed0=seed)
     d_heur = duel("trainee", lambda: trainee, deck, "heuristic", lambda: heuristic, deck, games=games, seed0=seed + 1000)
 
-    return {
+    out: dict[str, Any] = {
         "vs_frozen_teacher": d_teacher.summary(),
         "vs_heuristic": d_heur.summary(),
     }
+    for i, (name, target_deck) in enumerate(sorted((cross_deck_targets or {}).items())):
+        target = shell(HeuristicPolicy(target_deck, db, HeuristicConfig()), target_deck)
+        d_target = duel(
+            "trainee", lambda: shell(load_bc_policy(ckpt_path, deck, db), deck), deck,
+            f"{name}_heuristic", lambda t=target: t, target_deck,
+            games=games, seed0=seed + 2000 + i * 1000,
+        )
+        out[f"vs_{name}_heuristic"] = d_target.summary()
+    return out
 
 
 def run(
@@ -99,6 +116,7 @@ def run(
     ema_alpha: float = 0.25,
     eval_games: int = 60,
     seed: int = 0,
+    cross_deck_opponents: dict[str, tuple[list[int], str | None]] | None = None,
 ) -> dict[str, Any]:
     db = get_card_db()
     deck = load_deck(deck_name)
@@ -120,6 +138,7 @@ def run(
     league = League(
         db, deck, frozen_teacher_ckpt,
         max_past_selves=max_past_selves, ema_alpha=ema_alpha, pfsp_power=pfsp_power,
+        cross_deck_opponents=cross_deck_opponents,
     )
 
     round_dirs: list[Path] = []
@@ -184,15 +203,15 @@ def run(
         league.push_past_self(ckpt_path)
 
         print("  running deterministic check (the trustworthy number)...")
-        real = deterministic_check(ckpt_path, frozen_teacher_ckpt, db, deck, games=eval_games, seed=seed * 1000 + r)
-        print(
-            f"  REAL (deterministic) vs frozen-teacher: {real['vs_frozen_teacher']['a_winrate']:.3f} "
-            f"ci95={real['vs_frozen_teacher']['ci95']}"
+        cross_deck_targets = {
+            name: cd for name, (cd, _ckpt) in (cross_deck_opponents or {}).items()
+        }
+        real = deterministic_check(
+            ckpt_path, frozen_teacher_ckpt, db, deck, games=eval_games, seed=seed * 1000 + r,
+            cross_deck_targets=cross_deck_targets,
         )
-        print(
-            f"  REAL (deterministic) vs heuristic:      {real['vs_heuristic']['a_winrate']:.3f} "
-            f"ci95={real['vs_heuristic']['ci95']}"
-        )
+        for key, summary in real.items():
+            print(f"  REAL (deterministic) {key}: {summary['a_winrate']:.3f} ci95={summary['ci95']}")
 
         worst = league.worst_case()
         history.append(
@@ -238,7 +257,33 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--eval-games", type=int, default=60)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--report-out", default="artifacts/week2_report.json")
+    ap.add_argument(
+        "--cross-deck-opponents", default=None,
+        help="Week 9: comma-separated registered deck names to add as real, "
+        "differently-decked league opponents (heuristic-piloted; optionally "
+        "BC-piloted too, see --cross-deck-checkpoints), so self-play stops "
+        "being mirror-match-only. Example: 'lucario_fighting,rocket_mewtwo'",
+    )
+    ap.add_argument(
+        "--cross-deck-checkpoints", default=None,
+        help="Optional, comma-separated, same order/length as "
+        "--cross-deck-opponents: a .pt checkpoint path per deck, or an "
+        "empty entry to skip the BC member for that deck. "
+        "Example: ',artifacts/bc_rocket_mewtwo.pt'",
+    )
     args = ap.parse_args(argv)
+
+    cross_deck_opponents = None
+    if args.cross_deck_opponents:
+        from ..decks.registry import load_deck as _load_deck
+
+        deck_names = args.cross_deck_opponents.split(",")
+        ckpts = (args.cross_deck_checkpoints or "").split(",")
+        ckpts += [""] * (len(deck_names) - len(ckpts))
+        cross_deck_opponents = {
+            name: (_load_deck(name), ckpt or None)
+            for name, ckpt in zip(deck_names, ckpts)
+        }
 
     info = run(
         deck_name=args.deck,
@@ -258,6 +303,7 @@ def main(argv: list[str] | None = None) -> int:
         ema_alpha=args.ema_alpha,
         eval_games=args.eval_games,
         seed=args.seed,
+        cross_deck_opponents=cross_deck_opponents,
     )
     Path(args.report_out).parent.mkdir(parents=True, exist_ok=True)
     Path(args.report_out).write_text(json.dumps(info, indent=2), encoding="utf-8")

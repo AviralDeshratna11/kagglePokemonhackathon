@@ -153,18 +153,22 @@ def generate_round(
 
     for i in range(n_games):
         opponent_name = league.sample_opponent(rng)
+        opponent_deck = league.member_deck(opponent_name)
         opponent_policy = league.make_opponent(opponent_name)
 
         trainee_policy = NetworkPolicy(deck, model, table, card_mode, temperature=temperature, seed=seed_start + i)
 
         trainee_player = i % 2  # alternate seats
         shells = [None, None]
+        decks = [None, None]
         shells[trainee_player] = SafetyShell(trainee_policy, db, FallbackPolicy(deck), BudgetManager())
-        shells[1 - trainee_player] = SafetyShell(opponent_policy, db, FallbackPolicy(deck), BudgetManager())
+        decks[trainee_player] = deck
+        shells[1 - trainee_player] = SafetyShell(opponent_policy, db, FallbackPolicy(opponent_deck), BudgetManager())
+        decks[1 - trainee_player] = opponent_deck
 
         rec = _TraineeRecorder(out_dir, tag=f"{round_tag}-vs-{opponent_name}", db=db, trainee_player=trainee_player)
         result = play_match(
-            shells[0].act, shells[1].act, deck, deck, seed=seed_start + i, on_step=rec.on_step
+            shells[0].act, shells[1].act, decks[0], decks[1], seed=seed_start + i, on_step=rec.on_step
         )
 
         outcome = 0.5 if result.winner == -1 else (1.0 if result.winner == trainee_player else 0.0)
