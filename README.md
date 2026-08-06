@@ -1,5 +1,10 @@
 # PTCG AI Battle Challenge — Week 0
 
+> **For current project status, see [`PROJECT_STATUS.md`](PROJECT_STATUS.md).**
+> This README documents the Week-0 engine architecture in detail and is
+> still accurate on that front, but its status line below is stale — the
+> project is nine weeks past this point.
+
 Engine harness, safety layer, and a non-crashing rule-based MVP for the Pokémon
 TCG AI Battle Challenge (`cabt` engine, Kaggle).
 
